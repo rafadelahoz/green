@@ -1,0 +1,25 @@
+{
+	"folders":
+	[
+		{
+			"follow_symlinks": true,
+			"name": "green",
+			"path": "/Users/Rafa/Dev/Haxe/Green/green"
+		},
+		{
+			"follow_symlinks": true,
+			"name": "Flixel",
+			"path": "/shared/lib/haxelib/flixel/3,3,11/"
+		},
+		{
+			"follow_symlinks": true,
+			"name": "Flixel Addons",
+			"path": "/shared/lib/haxelib/flixel-addons/1,1,0/"
+		},
+		{
+			"follow_symlinks": true,
+			"name": "Haxe",
+			"path": "/usr/lib/haxe/std"
+		}
+	]
+}
