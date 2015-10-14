@@ -20,6 +20,8 @@ class World extends FlxState
 	{
 		super.create();
 		
+		GamePad.init();
+		
 		FlxG.scaleMode = new flixel.system.scaleModes.PixelPerfectScaleMode();
 		
 		player = new Player(FlxG.width / 2, FlxG.height / 2, this);
@@ -48,6 +50,8 @@ class World extends FlxState
 
 	override public function update():Void
 	{
+		GamePad.update();
+		
 		FlxG.collide(player, ground);
 
 		super.update();

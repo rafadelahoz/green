@@ -29,9 +29,11 @@
 	
 	<set name="BUILD_DIR" value="export" />
 	<classpath name="source" />
-	<classpath name="source/Entities" />
-	<classpath name="source/Text" />
 	<classpath name="source/utils/tiled" />
+	<classpath name="source/Text" />
+	<classpath name="source/Meta" />
+	<classpath name="source/Entities" />
+	
 	<assets path="assets" />
 	
 	<!--------------------------------LIBRARIES------------------------------------->

@@ -44,7 +44,7 @@ class Player extends Entity
 	{	
 		onAir = !isTouching(FlxObject.DOWN);
 		
-		if (FlxG.keys.pressed.RIGHT || FlxG.keys.pressed.LEFT)
+		if (GamePad.checkButton(GamePad.Right) || GamePad.checkButton(GamePad.Left))
 		{
 			jumpHoldTime = Math.min(jumpHoldTime + jumpHoldDelta, maxJumpHold);
 		}
@@ -63,13 +63,13 @@ class Player extends Entity
 
 		if (canJump)
 		{
-			if (FlxG.keys.justReleased.RIGHT)
+			if (GamePad.justReleased(GamePad.Right))
 			{
 				velocity = calculateJumpSpeed(FlxObject.RIGHT);
 				canJump = false;
 				jumpHoldTime = 0;
 			}
-			else if (FlxG.keys.justReleased.LEFT)
+			else if (GamePad.justReleased(GamePad.Left))
 			{
 				velocity = calculateJumpSpeed(FlxObject.LEFT);
 				canJump = false;
@@ -77,7 +77,7 @@ class Player extends Entity
 			}
 		}
 		
-		if (!FlxG.keys.anyPressed(["RIGHT", "LEFT"]))
+		if (!GamePad.checkButton(GamePad.Right) && !GamePad.checkButton(GamePad.Left))
 		{
 			jumpHoldTime = 0;
 		}
