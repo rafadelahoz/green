@@ -475,7 +475,7 @@ class TypeWriter extends FlxBitmapTextField
 		// press a key before closing or continuing with the text
 		if (finished)
 		{
-			if (GamePad.justPressed(GamePad.A))
+			if (GamePad.justPressed(GamePad.Right))
 			{
 				finished = false;
 				// If there is more text, we have not finished
@@ -516,12 +516,12 @@ class TypeWriter extends FlxBitmapTextField
 		{
 			if (_length < _finalText.length && _typing)
 			{
-				_timer += FlxG.elapsed * (GamePad.checkButton(GamePad.A) ? 10 : 1);
+				_timer += FlxG.elapsed * (GamePad.checkButton(GamePad.Right) ? 10 : 1);
 			}
 			
 			if (_length > 0 && _erasing)
 			{
-				_timer += FlxG.elapsed * (GamePad.checkButton(GamePad.A) ? 10 : 1);
+				_timer += FlxG.elapsed * (GamePad.checkButton(GamePad.Right) ? 10 : 1);
 			}
 		}
 		
@@ -599,7 +599,8 @@ class TypeWriter extends FlxBitmapTextField
 			if (textLines.length >= targetLines-1)
 			{
 				var lineText = textLines[textLines.length-1];
-				if (validWrapChar(lineText.charAt(lineText.length-1)))
+
+				if (lineText != null && validWrapChar(lineText.charAt(lineText.length-1)))
 				{
 					var remainer : String = _finalText.substring(_length - 1);
 					var remainerWords : Array<String> = remainer.split(" ");

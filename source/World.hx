@@ -10,6 +10,8 @@ import flixel.ui.FlxButton;
 import flixel.util.FlxMath;
 import flixel.group.FlxGroup;
 
+import text.TextBox;
+
 class World extends FlxState
 {
 	public var player : Player;
@@ -20,11 +22,15 @@ class World extends FlxState
 	{
 		super.create();
 		
+		// bgColor= 0xFF222202;
+		
+		TextBox.Init(this);
 		GamePad.init();
 		
 		FlxG.scaleMode = new flixel.system.scaleModes.PixelPerfectScaleMode();
+		// FlxG.scaleMode = new flixel.system.scaleModes.StageSizeScaleMode();
 		
-		player = new Player(FlxG.width / 2, FlxG.height / 2, this);
+		player = new Player(FlxG.width / 2, 0, this);
 		add(player);
 		
 		FlxG.watch.add(player, "x");

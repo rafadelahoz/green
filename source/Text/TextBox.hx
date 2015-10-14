@@ -1,6 +1,7 @@
 package text;
 
 import flixel.FlxG;
+import flixel.FlxState;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup;
 import flixel.group.FlxSpriteGroup;
@@ -13,28 +14,29 @@ import flixel.tweens.FlxTween;
 import openfl.Assets;
 
 /**
- * @author Simon Zeni (Bl4ckb0ne)
+ * @author Rafa de la Hoz (@thegraffo) over work of Simon Zeni (Bl4ckb0ne)
  */
 
 class TextBox extends FlxGroup
 {
-	var originX : Int = 8;
-	var originY : Int = 10;
+	var originX : Int = 120;
+	var originY : Int = 64;
 	
 	var borderX : Int = 8;
 	var borderY : Int = 8;
 		
-	var boxWidth : Int = Std.int(FlxG.width - 16);
-	var boxHeight: Int = Std.int(FlxG.height / 2 - 16);
-
-	private var _background:FlxSprite;
-	private var _name:FlxBitmapTextField;
-	private var _typetext:TypeWriter;
-	private var _isTalking:Bool;
-	private var _skip:FlxBitmapTextField;
-	private var _callback:Dynamic;
-
+	var boxWidth : Int = Std.int(240);
+	var boxHeight: Int = Std.int(32);
+	
+	
+	private static var world : FlxState;
 	private static var textBox : TextBox;
+	
+	public static function Init(World : World)
+	{
+		world = World;
+	}
+	
 	public static function Message(name : String, message : String, ?completeCallback:Dynamic)
 	{
 		if (textBox == null) 
@@ -42,9 +44,17 @@ class TextBox extends FlxGroup
 			textBox = new TextBox(name);
 			textBox._callback = completeCallback;
 			textBox.talk(message);
+			world.add(textBox);
 		}
 	}
 
+	private var _background:FlxSprite;
+	private var _name:FlxBitmapTextField;
+	private var _typetext:TypeWriter;
+	private var _isTalking:Bool;
+	private var _skip:FlxBitmapTextField;
+	private var _callback:Dynamic;
+	
 	override public function new(Name:String):Void
 	{
 		super();
@@ -158,7 +168,7 @@ class TextBox extends FlxGroup
 			}
 				
 			
-			if (GamePad.checkButton(GamePad.A))
+			if (GamePad.checkButton(GamePad.Right))
 				_skip.color = 0xFFffb300;
 			else
 				_skip.color = 0xFFbcbcbc;
