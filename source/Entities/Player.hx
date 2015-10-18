@@ -26,7 +26,15 @@ class Player extends Entity
 	{
 		super(X, Y, World);
 
-		makeGraphic(16, 16, 0xFF8AF507);
+		loadGraphic("assets/images/frog-sheet-v0.png", true, 32, 24);
+		animation.add("idle", [0]);
+		animation.add("jump", [1]);
+		animation.add("fall", [2]);
+
+		animation.play("idle");
+
+		setSize(12, 14);
+		offset.set(10, 10);
 		
 		onAir = true;
 		canJump = false;
@@ -52,13 +60,20 @@ class Player extends Entity
 		if (!onAir)
 		{
 			canJump = true;
-			acceleration.y = 0;
 			
-			velocity.set();
+			velocity.x = 0;
+			velocity.y = 0;
+
+			animation.play("idle");
 		}
 		else
 		{
 			acceleration.y = Gravity;
+
+			if (velocity.y < 0)
+				animation.play("jump");
+			else if (velocity.y > 0)
+				animation.play("fall");
 		}
 
 		if (canJump)
@@ -68,12 +83,16 @@ class Player extends Entity
 				velocity = calculateJumpSpeed(FlxObject.RIGHT);
 				canJump = false;
 				jumpHoldTime = 0;
+
+				flipX = false;
 			}
 			else if (GamePad.justReleased(GamePad.Left))
 			{
 				velocity = calculateJumpSpeed(FlxObject.LEFT);
 				canJump = false;
 				jumpHoldTime = 0;
+
+				flipX = true;
 			}
 		}
 		

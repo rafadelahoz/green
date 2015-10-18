@@ -27,7 +27,8 @@ class GamePad
 		
 		var touchRight : Bool = false;
 		var touchLeft : Bool = false;
-		
+	
+	#if !desktop
 		for (touch in FlxG.touches.list)
 		{
 			if (touch.pressed)
@@ -36,6 +37,7 @@ class GamePad
 				touchRight 	= (touch.screenX > FlxG.width / 2);
 			}
 		}
+	#end
 		
 		CurrentState = new Map<Int, Bool>();
 		CurrentState.set(Left, touchLeft || FlxG.keys.pressed.LEFT);
