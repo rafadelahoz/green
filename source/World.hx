@@ -10,6 +10,7 @@ import flixel.text.FlxText;
 import flixel.ui.FlxButton;
 import flixel.util.FlxMath;
 import flixel.util.FlxPoint;
+import flixel.util.FlxRandom;
 import flixel.group.FlxGroup;
 
 import text.TextBox;
@@ -36,14 +37,13 @@ class World extends FlxState
 		scene = new TiledScene("assets/scenes/0.tmx");
 		add(scene.backgroundTiles);
 
-		player = new Player(FlxG.width / 2, 0, this);
-		add(player);
+		ground = new FlxGroup();
+		add(ground);
 		
-		FlxG.watch.add(player, "x");
-		FlxG.watch.add(player, "y");
-		FlxG.watch.add(player, "velocity");
-		FlxG.watch.add(player, "onAir");
-		FlxG.watch.add(FlxG, "worldBounds");
+		// buildHopwayScene();
+		// buildBugCatcherScene();
+		
+		FlxG.watch.add(FlxG.camera, "deadzone");
 
 		decoration = new FlxGroup();
 		add(decoration);
@@ -54,15 +54,14 @@ class World extends FlxState
 		exits = new FlxGroup();
 		add(exits);
 
-		scene.loadObjects(this);
+		createPlayer(FlxG.width / 2, -10);
 
-		ground = new FlxGroup();
-		add(ground);
+		scene.loadObjects(this);
 
 		add(scene.overlayTiles);
 
-		FlxG.camera.setBounds(-2000, 0, 4000, FlxG.height + 48, true);
-		FlxG.camera.follow(player, FlxCamera.STYLE_PLATFORMER, null, 14);
+		FlxG.camera.setBounds(0, 0, 4000, scene.fullHeight, true);
+		FlxG.camera.follow(player, FlxCamera.STYLE_LOCKON, null, 14);
 	}
 	
 	override public function destroy():Void
@@ -84,6 +83,60 @@ class World extends FlxState
 
 		debugRoutines();
 	}	
+	
+	function createPlayer(x : Float, y : Float)
+	{
+		player = new Player(x, y, this);
+		add(player);
+		
+		FlxG.camera.focusOn(player.getMidpoint());
+		
+		FlxG.watch.add(player, 	"x");
+		FlxG.watch.add(player, 	"y");
+		FlxG.watch.add(player, 	"velocity");
+		FlxG.watch.add(player, 	"onAir");
+		FlxG.watch.add(FlxG, 	"worldBounds");
+	}
+	
+	function buildHopwayScene()
+	{
+		var wallcolor : Int = 0x0083769C;
+		
+		FlxG.camera.setBounds(-3750, 0, 10000, FlxG.height, true);
+		// FlxG.camera.setBounds(0, 0, FlxG.width, FlxG.height, true);
+		
+		var g : FlxSprite = new FlxSprite(-4000, FlxG.height - 16).makeGraphic(Std.int(FlxG.camera.bounds.width), 2, wallcolor);
+		g.solid = true;
+		g.immovable = true;
+		
+		ground.add(g);
+		
+		createPlayer(FlxG.camera.bounds.x + FlxG.camera.bounds.width / 2, -16);
+	}
+	
+	function buildBugCatcherScene()
+	{
+		FlxG.camera.setBounds(0, 0, FlxG.width, FlxG.height, true);
+	
+		var wallcolor : Int = 0x0083769C;
+		var wallwidth : Int = 32;
+	
+		var g : FlxSprite = new FlxSprite(0, FlxG.height - 16).makeGraphic(FlxG.width, 2, wallcolor);
+		g.solid = true;
+		g.immovable = true;
+		
+		ground.add(g);
+
+		g = new FlxSprite(0, 0).makeGraphic(wallwidth, FlxG.height, wallcolor);
+		g.immovable = true;
+		ground.add(g);
+
+		g = new FlxSprite(FlxG.width - wallwidth, 0).makeGraphic(wallwidth, FlxG.height, wallcolor);
+		g.immovable = true;
+		ground.add(g);
+		
+		createPlayer(FlxG.width / 2, 0);
+	}
 
 	function onPlayerExitCollision(exit : Exit, player : Player)
 	{
@@ -110,40 +163,38 @@ class World extends FlxState
 
 				ground.add(floor);
 
-				nextScene = new TiledScene("assets/scenes/" + exit.target + ".tmx");
-				nextScene.backgroundTiles.x = exit.x + length;
+				/*nextScene = new TiledScene("assets/scenes/" + exit.target + ".tmx");
+				// nextScene.backgroundTiles.x = exit.x + length;
 				add(nextScene.backgroundTiles);
-				nextScene.loadObjects(this);
+				nextScene.loadObjects(this);*/
 
 				exits.remove(exit);
 			}
 		}
 	}
 
-	function prepareDebugScene()
-	{
-		var g : FlxSprite = new FlxSprite(-2000, FlxG.height - 48).makeGraphic(6000, 2, 0xFF83769C);
-		g.solid = true;
-		g.immovable = true;
-		
-		ground.add(g);
-
-		g = new FlxSprite(0, 0).makeGraphic(96, FlxG.height, 0xFF83769C);
-		g.immovable = true;
-		ground.add(g);
-
-		g = new FlxSprite(FlxG.width - 96, 0).makeGraphic(96, FlxG.height, 0xFF83769C);
-		g.immovable = true;
-		ground.add(g);
-	}
-
 	function debugRoutines()
 	{
 		var mousePos : FlxPoint = FlxG.mouse.getWorldPosition();
 
-		if (FlxG.mouse.justPressed)
+		if (FlxG.keys.pressed.ONE)
+		{
+			add(new Fly(FlxRandom.floatRanged(0, FlxG.width), -10, this));
+		}
+		else if (FlxG.keys.justPressed.TWO) 
 		{
 			elements.add(new Balloon(mousePos.x, mousePos.y, this));
+		}
+		
+		if (FlxG.keys.justPressed.T)
+		{
+			FlxG.camera.followLerp = 0;
+			player.x += 100;
+			FlxG.camera.focusOn(player.getMidpoint());
+		}
+		else
+		{
+			FlxG.camera.followLerp = 14;
 		}
 	}
 }
