@@ -37,6 +37,12 @@ class Fly extends Entity
 		
 		var duration : Float = FlxRandom.floatRanged(1, 2);
 		
-		FlxTween.quadMotion(this, x, y, mousePos.x, mousePos.y + 200, targetX, targetY, duration);
+		FlxTween.quadMotion(this, x, y, mousePos.x, mousePos.y, targetX, targetY, duration);
+	}
+	
+	override public function update()
+	{
+		if (velocity.y < 0 && !isOnScreen())
+			destroy();
 	}
 }
