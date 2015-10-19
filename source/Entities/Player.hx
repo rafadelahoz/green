@@ -19,7 +19,7 @@ class Player extends Entity
 	var jumpHoldTime : Float;
 	var jumpHoldDelta : Float;
 	var maxJumpHold : Float;
-	
+
 	var display : FlxSprite;
 
 	public function new(X : Float, Y : Float, World : World)
@@ -84,6 +84,7 @@ class Player extends Entity
 				canJump = false;
 				jumpHoldTime = 0;
 
+				facing = FlxObject.RIGHT;
 				flipX = false;
 			}
 			else if (GamePad.justReleased(GamePad.Left))
@@ -92,6 +93,7 @@ class Player extends Entity
 				canJump = false;
 				jumpHoldTime = 0;
 
+				facing = FlxObject.LEFT;
 				flipX = true;
 			}
 		}
