@@ -18,6 +18,9 @@ class TiledScene extends TiledMap
 {
 	private inline static var spritesPath = "assets/images/";
 	private inline static var tilesetPath = "assets/tilesets/";
+	
+	public var x : Int;
+	public var y : Int;
 
 	public var overlayTiles    : FlxGroup;
 	public var foregroundTiles : FlxGroup;
@@ -26,16 +29,17 @@ class TiledScene extends TiledMap
 	
 	public var meltingsPerSecond : Float;
 
-	public function new(tiledLevel : Dynamic)
+	public function new(X : Float, Y : Float, tiledLevel : Dynamic)
 	{
 		super(tiledLevel);
+		
+		x = Std.int(X);
+		y = Std.int(Y);
 
 		overlayTiles = new FlxGroup();
 		foregroundTiles = new FlxGroup();
 		backgroundTiles = new FlxGroup();
 		collidableTileLayers = new Array<FlxTilemap>();
-
-		// FlxG.camera.setBounds(0, 0, fullWidth, fullHeight, true);
 
 		/* Read config info */
 		
@@ -67,6 +71,8 @@ class TiledScene extends TiledMap
 			tilemap.widthInTiles = width;
 			tilemap.heightInTiles = height;
 			tilemap.loadMap(tileLayer.tileArray, processedPath, tileset.tileWidth, tileset.tileHeight, 0, 1, 1, 1);
+			tilemap.x = x;
+			tilemap.y = y;
 			
 			if (tileLayer.properties.contains("overlay"))
 			{
@@ -96,8 +102,8 @@ class TiledScene extends TiledMap
 
 	private function loadObject(o : TiledObject, g : TiledObjectGroup, state : World) : Void
 	{
-		var x : Int = o.x;
-		var y : Int = o.y;
+		var x : Int = o.x + this.x;
+		var y : Int = o.y + this.y;
 
 		// The Y position of objects created from tiles must be corrected by the object height
 		if (o.gid != -1) {
@@ -107,6 +113,7 @@ class TiledScene extends TiledMap
 		switch (o.type.toLowerCase()) 
 		{
 			case "exit":
+				trace("Exit at ("+x+","+y+")");
 				var dir : String = o.custom.get("direction");
 				var target : String = o.custom.get("target");
 				var hops : Int = Std.parseInt(o.custom.get("hops"));

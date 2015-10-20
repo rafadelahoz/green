@@ -15,7 +15,8 @@ class Exit extends Entity
 	{
 		super(X, Y, World);
 
-		visible = false;
+		visible = true;
+		makeGraphic(Std.int(Width), Std.int(Height), 0xFF000001);
 		setSize(Width, Height);
 
 		immovable = true;

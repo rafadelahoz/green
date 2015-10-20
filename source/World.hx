@@ -5,6 +5,7 @@ import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.FlxCamera;
+import flixel.tile.FlxTilemap;
 
 import flixel.text.FlxText;
 import flixel.ui.FlxButton;
@@ -33,13 +34,15 @@ class World extends FlxState
 		GamePad.init();
 		
 		FlxG.scaleMode = new flixel.system.scaleModes.PixelPerfectScaleMode();
-		
-		scene = new TiledScene("assets/scenes/0.tmx");
-		add(scene.backgroundTiles);
-
+				
 		ground = new FlxGroup();
 		add(ground);
 		
+		scene = null;
+		scene = new TiledScene(0, 0, "assets/scenes/0.tmx");
+		if (scene != null)
+			add(scene.backgroundTiles);
+
 		// buildHopwayScene();
 		// buildBugCatcherScene();
 		
@@ -56,12 +59,16 @@ class World extends FlxState
 
 		createPlayer(FlxG.width / 2, -10);
 
-		scene.loadObjects(this);
+		if (scene != null)
+			scene.loadObjects(this);
 
-		add(scene.overlayTiles);
+		if (scene != null)
+			add(scene.overlayTiles);
 
-		FlxG.camera.setBounds(0, 0, 4000, scene.fullHeight, true);
+		FlxG.camera.setBounds(-3750, 0, 10000, FlxG.height, true);
 		FlxG.camera.follow(player, FlxCamera.STYLE_LOCKON, null, 14);
+		
+		FlxG.watch.add(FlxG.camera, "scroll");
 	}
 	
 	override public function destroy():Void
@@ -73,7 +80,8 @@ class World extends FlxState
 	{
 		GamePad.update();
 		
-		scene.collideWithLevel(player);
+		if (scene != null)
+			scene.collideWithLevel(player);
 		FlxG.collide(ground, player);
 		FlxG.collide(elements, player);
 
@@ -87,15 +95,14 @@ class World extends FlxState
 	function createPlayer(x : Float, y : Float)
 	{
 		player = new Player(x, y, this);
+		trace(player);
 		add(player);
 		
 		FlxG.camera.focusOn(player.getMidpoint());
 		
 		FlxG.watch.add(player, 	"x");
 		FlxG.watch.add(player, 	"y");
-		FlxG.watch.add(player, 	"velocity");
 		FlxG.watch.add(player, 	"onAir");
-		FlxG.watch.add(FlxG, 	"worldBounds");
 	}
 	
 	function buildHopwayScene()
@@ -103,7 +110,6 @@ class World extends FlxState
 		var wallcolor : Int = 0x0083769C;
 		
 		FlxG.camera.setBounds(-3750, 0, 10000, FlxG.height, true);
-		// FlxG.camera.setBounds(0, 0, FlxG.width, FlxG.height, true);
 		
 		var g : FlxSprite = new FlxSprite(-4000, FlxG.height - 16).makeGraphic(Std.int(FlxG.camera.bounds.width), 2, wallcolor);
 		g.solid = true;
@@ -184,6 +190,13 @@ class World extends FlxState
 		else if (FlxG.keys.justPressed.TWO) 
 		{
 			elements.add(new Balloon(mousePos.x, mousePos.y, this));
+		}
+		
+		if (FlxG.keys.justPressed.P)
+		{
+			trace("Cam bounds: " + FlxG.camera.bounds);
+			trace("World bounds: " + FlxG.worldBounds);
+			trace("Zoom: " + FlxG.camera.zoom);
 		}
 		
 		if (FlxG.keys.justPressed.T)
