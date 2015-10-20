@@ -16,6 +16,8 @@ import flixel.group.FlxGroup;
 
 import text.TextBox;
 
+import world.Node;
+
 class World extends FlxState
 {
 	public var player : Player;
@@ -23,8 +25,15 @@ class World extends FlxState
 	public var decoration : FlxGroup;
 	public var elements : FlxGroup;
 	public var exits : FlxGroup;
-	public var scene : TiledScene;
+	
+	public var SceneGraph : Map<String, Node>;
+	public var currentSceneName : String;
+	public var nextSceneName : String;
+	
+	public var currentScene : TiledScene;
 	public var nextScene : TiledScene;
+	
+	public var currentGround : FlxObject;
 
 	override public function create():Void
 	{
@@ -38,16 +47,6 @@ class World extends FlxState
 		ground = new FlxGroup();
 		add(ground);
 		
-		scene = null;
-		scene = new TiledScene(0, 0, "assets/scenes/0.tmx");
-		if (scene != null)
-			add(scene.backgroundTiles);
-
-		// buildHopwayScene();
-		// buildBugCatcherScene();
-		
-		FlxG.watch.add(FlxG.camera, "deadzone");
-
 		decoration = new FlxGroup();
 		add(decoration);
 
@@ -56,14 +55,21 @@ class World extends FlxState
 
 		exits = new FlxGroup();
 		add(exits);
-
+		
+		currentSceneName = null;
+		nextSceneName = null;
+		currentScene = null;
+		nextScene = null;
+		currentGround = null;
+		
+		loadScenesGraph();
+		
+		// buildHopwayScene();
+		// buildBugCatcherScene();
+		
+		currentScene = loadScene(currentSceneName, 0, 0);
+		
 		createPlayer(FlxG.width / 2, -10);
-
-		if (scene != null)
-			scene.loadObjects(this);
-
-		if (scene != null)
-			add(scene.overlayTiles);
 
 		FlxG.camera.setBounds(-3750, 0, 10000, FlxG.height, true);
 		FlxG.camera.follow(player, FlxCamera.STYLE_LOCKON, null, 14);
@@ -80,8 +86,8 @@ class World extends FlxState
 	{
 		GamePad.update();
 		
-		if (scene != null)
-			scene.collideWithLevel(player);
+		if (currentScene != null)
+			currentScene.collideWithLevel(player);
 		FlxG.collide(ground, player);
 		FlxG.collide(elements, player);
 
@@ -92,17 +98,34 @@ class World extends FlxState
 		debugRoutines();
 	}	
 	
+	function loadScene(sceneName : String, x : Int, y : Int, ?direction : Int = FlxObject.RIGHT) : TiledScene
+	{
+		var scene = new TiledScene(x, y, "assets/scenes/" + sceneName + ".tmx", (direction == FlxObject.LEFT));
+		
+		if (scene != null)
+			add(scene.backgroundTiles);
+
+		if (scene != null)
+			scene.loadObjects(this);
+
+		if (scene != null)
+			add(scene.overlayTiles);
+		
+		trace("Loading scene " + sceneName + " at (" + scene.x + ", " + scene.y + ")");		
+			
+		return scene;
+	}
+	
 	function createPlayer(x : Float, y : Float)
 	{
 		player = new Player(x, y, this);
-		trace(player);
 		add(player);
 		
 		FlxG.camera.focusOn(player.getMidpoint());
 		
-		FlxG.watch.add(player, 	"x");
+		/*FlxG.watch.add(player, 	"x");
 		FlxG.watch.add(player, 	"y");
-		FlxG.watch.add(player, 	"onAir");
+		FlxG.watch.add(player, 	"onAir");*/
 	}
 	
 	function buildHopwayScene()
@@ -146,37 +169,126 @@ class World extends FlxState
 
 	function onPlayerExitCollision(exit : Exit, player : Player)
 	{
+		var currentNode : Node = SceneGraph.get(currentSceneName);
+		var nextSceneNode : Node = null;
+		if (nextSceneName != null)
+			nextSceneNode = SceneGraph.get(nextSceneName);
+			
+		// TODO: This condition can be substituted by checking the state (in-scene, between-scenes)
 		if (player.facing == exit.direction)
-		{
-			if (exit.floor == null)
+		{	
+			if (!currentNode.exits.exists(exit.name))
 			{
-				trace("exit");
-				var length : Int = exit.hops * 100;
+				trace("Invalid exit " + exit.name + " for current scene + " + currentSceneName);
+				
+				player.velocity.x *= -1;
+				return;
+			}
+			
+			var exitData : ExitData = currentNode.exits.get(exit.name);
+		
+			// Exiting!
+			if (currentGround == null)
+			{
+				nextSceneName = exitData.node;
+				
+				trace("exiting towards " + nextSceneName);
+				
+				// Compute distance to next Scene
+				var length : Int = exitData.hops * 10;
 
+				var targetSceneX : Int = -1;
+				// Generate the floor that joins the two scenes
 				var floor : FlxSprite = null;
 				switch (exit.direction)
 				{
 					case FlxObject.RIGHT:
 						floor = new FlxSprite(exit.x, exit.y + exit.height).makeGraphic(length, 32, 0xFF83769C);
+						targetSceneX = Std.int(exit.x + length);
 					case FlxObject.LEFT:
 						floor = new FlxSprite(exit.x - length, exit.y + exit.height).makeGraphic(length, 32, 0xFF83769C);
+						targetSceneX = Std.int(exit.x - length);
 				}
-
 				floor.immovable = true;
-
-				exit.floor = floor;
-				trace(exit.floor);
-
-				ground.add(floor);
-
-				/*nextScene = new TiledScene("assets/scenes/" + exit.target + ".tmx");
-				// nextScene.backgroundTiles.x = exit.x + length;
-				add(nextScene.backgroundTiles);
-				nextScene.loadObjects(this);*/
-
-				exits.remove(exit);
+				
+				// Store and set it
+				currentGround = floor;
+				ground.add(currentGround);
+					
+				// TODO: Compute appropriate scene X considering taret exit X and scene height
+				// TODO: Compute appropriate scene Y considering target exit floor alignment
+				// TODO: Probably the scene will have to be loaded to compute the position
+				
+				// Load next scene tilemap & data at correct position
+				nextScene = loadScene(exitData.node, targetSceneX, 0, exit.direction);
 			}
 		}
+		else if (player.facing == oppositeDirectionOf(exit.direction))
+		{
+			if (nextSceneName == null)
+				return;
+		
+			trace("Entering " + nextSceneName);
+		
+			if (nextSceneNode == null)
+			{
+				trace("Node not found: " + nextSceneName);
+				return;
+			}
+			else if (!nextSceneNode.exits.exists(exit.name))
+			{
+				trace("Invalid entry " + exit.name + " for current scene + " + nextSceneName);
+				return;
+			}
+			
+			// NextScene tilemap and entity data is already loaded
+			// free currentScene
+			currentScene.destroy();
+			// set currentScene = nextScene
+			currentScene = nextScene;
+			// set nextScene = null
+			nextScene = null;
+			
+			// set currentNode = nextNode
+			currentSceneName = nextSceneName;
+			// set nextNode = null
+			nextSceneName = null;
+			// destroy currentGround & currentGround = null
+			if (currentGround != null)
+			{
+				ground.remove(currentGround);
+				currentGround.destroy();
+				currentGround = null;
+			}
+		}
+	}
+	
+	public static function oppositeDirectionOf(direction : Int) : Int
+	{
+		if (direction == FlxObject.LEFT)
+			return FlxObject.RIGHT;
+		else if (direction == FlxObject.RIGHT)
+			return FlxObject.LEFT;
+		else
+			return FlxObject.NONE;
+	}
+	
+	function loadScenesGraph()
+	{
+		SceneGraph = new Map<String, Node>();
+		
+		var s1 : Node = new Node("0");
+		s1.exits.set("R1", { node : "1", exit : "L1", hops : 10 });
+		s1.exits.set("L1", { node : "1", exit : "R1", hops : 10 });
+		
+		var s2 : Node = new Node("1");
+		s2.exits.set("R1", { node : "0", exit : "L1", hops : 10 });
+		s2.exits.set("L1", { node : "0", exit : "R1", hops : 10 });
+		
+		SceneGraph.set(s1.name, s1);
+		SceneGraph.set(s2.name, s2);
+		
+		currentSceneName = "0";
 	}
 
 	function debugRoutines()

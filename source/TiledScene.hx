@@ -29,12 +29,15 @@ class TiledScene extends TiledMap
 	
 	public var meltingsPerSecond : Float;
 
-	public function new(X : Float, Y : Float, tiledLevel : Dynamic)
+	public function new(X : Float, Y : Float, tiledLevel : Dynamic, ?offsetByWidth : Bool = false)
 	{
 		super(tiledLevel);
 		
 		x = Std.int(X);
 		y = Std.int(Y);
+		
+		if (offsetByWidth)
+			x -= fullWidth;
 
 		overlayTiles = new FlxGroup();
 		foregroundTiles = new FlxGroup();
@@ -113,13 +116,12 @@ class TiledScene extends TiledMap
 		switch (o.type.toLowerCase()) 
 		{
 			case "exit":
-				trace("Exit at ("+x+","+y+")");
+				// trace("Exit at ("+x+","+y+")");
 				var dir : String = o.custom.get("direction");
-				var target : String = o.custom.get("target");
-				var hops : Int = Std.parseInt(o.custom.get("hops"));
-
-				var exit : Exit = new Exit(x, y, state, o.width, o.height);
-				exit.init(dir, target, hops);
+				var name : String = o.custom.get("name");
+				
+				var exit : Exit = new Exit(x, y, state, this, o.width, o.height);
+				exit.init(name, dir);
 				state.exits.add(exit);
 		
 			/*case "oneway":
@@ -132,7 +134,7 @@ class TiledScene extends TiledMap
 		
 		/** Elements **/
 			case "decoration":
-				trace("adding decoration!");
+				// trace("adding decoration!");
 				var gid = o.gid;
 				var tiledImage : TiledImage = getImageSource(gid);
 				if (tiledImage == null)

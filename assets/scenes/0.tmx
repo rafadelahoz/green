@@ -48,15 +48,13 @@
   <object id="4" type="exit" x="472" y="48" width="8" height="80">
    <properties>
     <property name="direction" value="right"/>
-    <property name="hops" value="100"/>
-    <property name="target" value="0"/>
+    <property name="name" value="R1"/>
    </properties>
   </object>
   <object id="5" type="exit" x="0" y="48" width="8" height="80">
    <properties>
     <property name="direction" value="left"/>
-    <property name="hops" value="100"/>
-    <property name="target" value="0"/>
+    <property name="name" value="L1"/>
    </properties>
   </object>
   <object id="6" name="grass-patch" type="decoration" gid="65" x="272" y="136" width="96" height="24"/>

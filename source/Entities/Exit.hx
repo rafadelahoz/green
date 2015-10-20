@@ -3,17 +3,16 @@ package;
 import flixel.FlxObject;
 import flixel.FlxSprite;
 
-class Exit extends Entity
+class Exit extends SceneEntity
 {
+	public var name : String;
 	public var direction : Int;
-	public var target : String;
-	public var hops : Int;
 
 	public var floor : FlxSprite;
 
-	public function new(X : Float, Y : Float, World : World, Width : Float, Height : Float)
+	public function new(X : Float, Y : Float, World : World, Scene : TiledScene, Width : Float, Height : Float)
 	{
-		super(X, Y, World);
+		super(X, Y, World, Scene);
 
 		visible = true;
 		makeGraphic(Std.int(Width), Std.int(Height), 0xFF000001);
@@ -22,11 +21,10 @@ class Exit extends Entity
 		immovable = true;
 	}
 
-	public function init(direction : String, target : String, hops : Int)
+	public function init(name : String, direction : String)
 	{
+		this.name = name;
 		this.direction = parseDirection(direction);
-		this.target = target;
-		this.hops = hops;
 	}
 
 	static function parseDirection(dir : String) : Int
