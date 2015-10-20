@@ -19,6 +19,8 @@ class TiledScene extends TiledMap
 	private inline static var spritesPath = "assets/images/";
 	private inline static var tilesetPath = "assets/tilesets/";
 	
+	public var name : String;
+
 	public var x : Int;
 	public var y : Int;
 
@@ -29,8 +31,11 @@ class TiledScene extends TiledMap
 	
 	public var meltingsPerSecond : Float;
 
-	public function new(X : Float, Y : Float, tiledLevel : Dynamic, ?offsetByWidth : Bool = false)
+	public function new(X : Float, Y : Float, sceneName : String, ?offsetByWidth : Bool = false)
 	{
+		name = sceneName;
+		var tiledLevel : String = "assets/scenes/" + sceneName + ".tmx";
+
 		super(tiledLevel);
 		
 		x = Std.int(X);

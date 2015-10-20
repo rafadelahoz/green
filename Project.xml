@@ -13,7 +13,7 @@
 	
 	<!--------------------------------WINDOW SETTINGS------------------------------->
 	
-	<set name="work"/>
+	<!--<set name="work"/>-->
 	
 	<!--These window settings apply to all targets-->
 	<window width="720" height="480" fps="60" background="#000000" hardware="true" vsync="true" />

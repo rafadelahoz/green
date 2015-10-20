@@ -100,7 +100,7 @@ class World extends FlxState
 	
 	function loadScene(sceneName : String, x : Int, y : Int, ?direction : Int = FlxObject.RIGHT) : TiledScene
 	{
-		var scene = new TiledScene(x, y, "assets/scenes/" + sceneName + ".tmx", (direction == FlxObject.LEFT));
+		var scene = new TiledScene(x, y, sceneName, (direction == FlxObject.LEFT));
 		
 		if (scene != null)
 			add(scene.backgroundTiles);
@@ -195,7 +195,7 @@ class World extends FlxState
 				trace("exiting towards " + nextSceneName);
 				
 				// Compute distance to next Scene
-				var length : Int = exitData.hops * 10;
+				var length : Int = exitData.hops * 32;
 
 				var targetSceneX : Int = -1;
 				// Generate the floor that joins the two scenes
@@ -203,10 +203,10 @@ class World extends FlxState
 				switch (exit.direction)
 				{
 					case FlxObject.RIGHT:
-						floor = new FlxSprite(exit.x, exit.y + exit.height).makeGraphic(length, 32, 0xFF83769C);
+						floor = new FlxSprite(exit.x, exit.y + exit.height).makeGraphic(length, 32, 0x0083769C);
 						targetSceneX = Std.int(exit.x + length);
 					case FlxObject.LEFT:
-						floor = new FlxSprite(exit.x - length, exit.y + exit.height).makeGraphic(length, 32, 0xFF83769C);
+						floor = new FlxSprite(exit.x - length, exit.y + exit.height).makeGraphic(length, 32, 0x0083769C);
 						targetSceneX = Std.int(exit.x - length);
 				}
 				floor.immovable = true;
@@ -227,7 +227,17 @@ class World extends FlxState
 		{
 			if (nextSceneName == null)
 				return;
-		
+
+			if (nextSceneName != exit.scene.name)
+			{
+				trace("Returning to " + exit.scene.name);
+				// return;
+				nextSceneName = exit.scene.name;
+				var oldNextScene : TiledScene = nextScene;
+				nextScene = currentScene;
+				currentScene = oldNextScene;
+			}
+
 			trace("Entering " + nextSceneName);
 		
 			if (nextSceneNode == null)
