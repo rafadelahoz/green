@@ -5,10 +5,7 @@ import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.FlxCamera;
-import flixel.tile.FlxTilemap;
-
-import flixel.text.FlxText;
-import flixel.ui.FlxButton;
+import flixel.util.FlxRect;
 import flixel.util.FlxMath;
 import flixel.util.FlxPoint;
 import flixel.util.FlxRandom;
@@ -98,9 +95,10 @@ class World extends FlxState
 		debugRoutines();
 	}	
 	
-	function loadScene(sceneName : String, x : Int, y : Int, ?direction : Int = FlxObject.RIGHT) : TiledScene
+	function loadScene(sceneName : String, x : Int, y : Int, ?direction : Int = FlxObject.RIGHT,
+						?floorHeight : Float = 0, ?exit : String = null) : TiledScene
 	{
-		var scene = new TiledScene(x, y, sceneName, (direction == FlxObject.LEFT));
+		var scene = new TiledScene(x, y, sceneName, (direction == FlxObject.LEFT), floorHeight, exit);
 		
 		if (scene != null)
 			add(scene.backgroundTiles);
@@ -197,7 +195,9 @@ class World extends FlxState
 				// Compute distance to next Scene
 				var length : Int = exitData.hops * 32;
 
+				// TODO: Compute appropriate scene X considering target exit X
 				var targetSceneX : Int = -1;
+				
 				// Generate the floor that joins the two scenes
 				var floor : FlxSprite = null;
 				switch (exit.direction)
@@ -215,12 +215,15 @@ class World extends FlxState
 				currentGround = floor;
 				ground.add(currentGround);
 					
-				// TODO: Compute appropriate scene X considering taret exit X and scene height
 				// TODO: Compute appropriate scene Y considering target exit floor alignment
 				// TODO: Probably the scene will have to be loaded to compute the position
 				
 				// Load next scene tilemap & data at correct position
-				nextScene = loadScene(exitData.node, targetSceneX, 0, exit.direction);
+				var floorHeight : Float = exit.y + exit.height;
+				nextScene = loadScene(exitData.node, targetSceneX, 0, exit.direction, floorHeight, exitData.exit);
+				
+				// And update the world bounds
+				updateBounds();
 			}
 		}
 		else if (player.facing == oppositeDirectionOf(exit.direction))
@@ -270,7 +273,41 @@ class World extends FlxState
 				currentGround.destroy();
 				currentGround = null;
 			}
+		
+			// And update the world bounds		
+			updateBounds();
 		}
+	}
+	
+	function updateBounds()
+	{
+		// Update camera and world bounds considering the current scenes
+		var sceneBounds : FlxRect = currentScene.getBounds();
+		
+		var x1 : Float = sceneBounds.left;
+		var y1 : Float = sceneBounds.top;
+		var w : Float = sceneBounds.width;
+		var h : Float = sceneBounds.height;
+		
+		if (nextScene != null)
+		{
+			var nextSceneBounds : FlxRect = nextScene.getBounds();
+			
+			x1 = Math.min(x1, nextSceneBounds.left);
+			y1 = Math.min(y1, nextSceneBounds.top);
+			
+			var x2 : Float = Math.max(sceneBounds.right, nextSceneBounds.right);
+			var y2 : Float = Math.max(sceneBounds.bottom, nextSceneBounds.bottom);
+			
+			w = x2 - x1;
+			h = y2 - y1;
+		}
+		
+		var padding : Float = 200;
+		FlxG.camera.setBounds(x1 - padding, y1 - padding, w + padding, h + padding, true);
+		
+		trace("Cam bounds: " + FlxG.camera.bounds);
+		trace("World bounds: " + FlxG.worldBounds);
 	}
 	
 	public static function oppositeDirectionOf(direction : Int) : Int

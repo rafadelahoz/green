@@ -4,15 +4,17 @@ import haxe.io.Path;
 
 import flixel.FlxG;
 import flixel.FlxObject;
+import flixel.FlxSprite;
+import flixel.util.FlxRect;
+import flixel.util.FlxPoint;
+import flixel.group.FlxGroup;
+import flixel.tile.FlxTilemap;
+
 import utils.tiled.TiledMap;
 import utils.tiled.TiledObject;
 import utils.tiled.TiledObjectGroup;
 import utils.tiled.TiledTileSet;
 import utils.tiled.TiledImage;
-import flixel.group.FlxGroup;
-import flixel.tile.FlxTilemap;
-import flixel.FlxSprite;
-import flixel.util.FlxPoint;
 
 class TiledScene extends TiledMap
 {
@@ -31,7 +33,8 @@ class TiledScene extends TiledMap
 	
 	public var meltingsPerSecond : Float;
 
-	public function new(X : Float, Y : Float, sceneName : String, ?offsetByWidth : Bool = false)
+	public function new(X : Float, Y : Float, sceneName : String, ?offsetByWidth : Bool = false, 
+						?floorHeight : Float = 0, ?entryDoor : String = null)
 	{
 		name = sceneName;
 		var tiledLevel : String = "assets/scenes/" + sceneName + ".tmx";
@@ -43,6 +46,17 @@ class TiledScene extends TiledMap
 		
 		if (offsetByWidth)
 			x -= fullWidth;
+			
+		// Match floor height with the specified entry door
+		if (entryDoor != null)
+		{
+			var door : TiledObject = locateDoor(entryDoor);
+			if (door != null)
+			{
+				y = Std.int(y + door.y - floorHeight);
+				trace("Found exit '" + entryDoor + "', new Y is: " + y);
+			}
+		}
 
 		overlayTiles = new FlxGroup();
 		foregroundTiles = new FlxGroup();
@@ -206,5 +220,26 @@ class TiledScene extends TiledMap
 		overlayTiles.destroy();
 		for (layer in collidableTileLayers)
 			layer.destroy();
+	}
+	
+	function locateDoor(name : String) : TiledObject
+	{
+		for (group in objectGroups)
+		{
+			for (o in group.objects)
+			{
+				if (o.type.toLowerCase() == "exit" && o.custom.get("name") == name)
+				{
+					return o;
+				}
+			}
+		}
+		
+		return null;
+	}
+	
+	public function getBounds() : FlxRect
+	{
+		return new FlxRect(x, y, x + fullWidth, y + fullHeight);
 	}
 }
