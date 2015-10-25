@@ -9,5 +9,7 @@ class SceneEntity extends Entity
 		super(X, Y, World);
 		
 		scene = Scene;
+
+		trace("New SceneEntity@" + scene.name);
 	}
 }

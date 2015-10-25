@@ -21,6 +21,8 @@ class TiledScene extends TiledMap
 	private inline static var spritesPath = "assets/images/";
 	private inline static var tilesetPath = "assets/tilesets/";
 	
+	public var world : World;
+
 	public var name : String;
 
 	public var x : Int;
@@ -33,9 +35,11 @@ class TiledScene extends TiledMap
 	
 	public var meltingsPerSecond : Float;
 
-	public function new(X : Float, Y : Float, sceneName : String, ?offsetByWidth : Bool = false, 
+	public function new(X : Float, Y : Float, World : World, sceneName : String, ?offsetByWidth : Bool = false, 
 						?floorHeight : Float = 0, ?entryDoor : String = null)
 	{
+		world = World;
+
 		name = sceneName;
 		var tiledLevel : String = "assets/scenes/" + sceneName + ".tmx";
 
@@ -53,7 +57,7 @@ class TiledScene extends TiledMap
 			var door : TiledObject = locateDoor(entryDoor);
 			if (door != null)
 			{
-				y = Std.int(y + door.y + door.height - floorHeight);
+				y = Std.int(floorHeight - (door.y + door.height));
 				trace("Found exit '" + entryDoor + "', new Y is: " + y);
 			}
 		}
@@ -95,6 +99,7 @@ class TiledScene extends TiledMap
 			tilemap.loadMap(tileLayer.tileArray, processedPath, tileset.tileWidth, tileset.tileHeight, 0, 1, 1, 1);
 			tilemap.x = x;
 			tilemap.y = y;
+			tilemap.ignoreDrawDebug = true;
 			
 			if (tileLayer.properties.contains("overlay"))
 			{
@@ -103,6 +108,7 @@ class TiledScene extends TiledMap
 			else if (tileLayer.properties.contains("solid")) 
 			{
 				collidableTileLayers.push(tilemap);
+				tilemap.ignoreDrawDebug = false;
 			}
 			else
 			{
@@ -162,7 +168,7 @@ class TiledScene extends TiledMap
 				}
 				else
 				{
-					var decoration : Decoration = new Decoration(x, y, state, tiledImage);
+					var decoration : Decoration = new Decoration(x, y, state, this, tiledImage);
 					state.decoration.add(decoration);
 				}
 				
@@ -220,6 +226,18 @@ class TiledScene extends TiledMap
 		overlayTiles.destroy();
 		for (layer in collidableTileLayers)
 			layer.destroy();
+
+		world.decoration.forEachOfType(SceneEntity, removeCurrentSceneEntities);
+		world.exits.forEachOfType(SceneEntity, removeCurrentSceneEntities);
+	}
+
+	public function removeCurrentSceneEntities(entity : SceneEntity) : Void
+	{
+		if (entity.scene == world.currentScene)
+		{
+			world.remove(entity);
+			entity.destroy();
+		}
 	}
 	
 	function locateDoor(name : String) : TiledObject

@@ -74,6 +74,9 @@ class Player extends Entity
 				animation.play("jump");
 			else if (velocity.y > 0)
 				animation.play("fall");
+
+			if (isTouching(FlxObject.RIGHT) || isTouching(FlxObject.RIGHT))
+				velocity.x = 0;
 		}
 
 		if (canJump)

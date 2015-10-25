@@ -65,10 +65,11 @@ class World extends FlxState
 		// buildBugCatcherScene();
 		
 		currentScene = loadScene(currentSceneName, -2000, 0);
+		updateBounds();
 		
-		createPlayer(currentScene.x + currentScene.width / 2, -10);
+		createPlayer(currentScene.x + currentScene.fullWidth / 2, -10);
 
-		FlxG.camera.setBounds(-3750, 0, 10000, FlxG.height, true);
+		// FlxG.camera.setBounds(-3750, 0, 10000, FlxG.height, true);
 		FlxG.camera.follow(player, FlxCamera.STYLE_LOCKON, null, 14);
 		
 		FlxG.watch.add(FlxG.camera, "scroll");
@@ -98,7 +99,7 @@ class World extends FlxState
 	function loadScene(sceneName : String, x : Int, y : Int, ?direction : Int = FlxObject.RIGHT,
 						?floorHeight : Float = 0, ?exit : String = null) : TiledScene
 	{
-		var scene = new TiledScene(x, y, sceneName, (direction == FlxObject.LEFT), floorHeight, exit);
+		var scene = new TiledScene(x, y, this, sceneName, (direction == FlxObject.LEFT), floorHeight, exit);
 		
 		if (scene != null)
 			add(scene.backgroundTiles);
@@ -177,7 +178,7 @@ class World extends FlxState
 		{	
 			if (!currentNode.exits.exists(exit.name))
 			{
-				trace("Invalid exit " + exit.name + " for current scene + " + currentSceneName);
+				trace("Invalid exit " + exit.name + " for current scene " + currentSceneName);
 				
 				player.velocity.x *= -1;
 				return;
@@ -290,7 +291,7 @@ class World extends FlxState
 		{
 			var nextSceneBounds : FlxRect = nextScene.getBounds();
 
-			var x2 : Float;
+			/*var x2 : Float;
 			var y2 : Float;
 
 			// Locate lefmost scene
@@ -310,10 +311,10 @@ class World extends FlxState
 			var y2 : Float = Math.max(sceneBounds.bottom, nextSceneBounds.bottom);
 
 			w = x2 - x1;
-			h = y2 - y1;
+			h = y2 - y1;*/
 			
 			
-			/*trace("x1 = min(" + x1 + ", " + nextSceneBounds.left +")");
+			trace("x1 = min(" + x1 + ", " + nextSceneBounds.left +")");
 			x1 = Math.min(x1, nextSceneBounds.left);
 			y1 = Math.min(y1, nextSceneBounds.top);
 			
@@ -324,7 +325,7 @@ class World extends FlxState
 			var y2 : Float = Math.max(sceneBounds.bottom, nextSceneBounds.bottom);
 			
 			w = x2 - x1;
-			h = y2 - y1;*/
+			h = y2 - y1;
 			
 			trace("(" + x1 + ", " + y1 + ") -> (" + x2 + ", " + y2 + ") [" + w + ", " + h + "]");
 		}
@@ -354,22 +355,28 @@ class World extends FlxState
 		SceneGraph = new Map<String, Node>();
 		
 		var s1 : Node = new Node("0");
-		s1.exits.set("R1", { node : "1", exit : "L1", hops : 10 });
-		s1.exits.set("L1", { node : "1", exit : "R1", hops : 10 });
+		s1.exits.set("R1", { node : "4", exit : "L1", hops : 5 });
+		s1.exits.set("L1", { node : "4", exit : "R2", hops : 5 });
 		
 		var s2 : Node = new Node("1");
-		s2.exits.set("R1", { node : "0", exit : "L1", hops : 10 });
-		s2.exits.set("L1", { node : "0", exit : "R1", hops : 10 });
+		s2.exits.set("R1", { node : "2", exit : "L1", hops : 5 });
+		s2.exits.set("L1", { node : "0", exit : "R1", hops : 5 });
 
 		var s3 : Node = new Node("2");
-		s3.exits.set("R1", { node : "2", exit : "L1", hops : 1 });
-		s3.exits.set("L1", { node : "2", exit : "R1", hops : 1 });
+		s3.exits.set("R1", { node : "2", exit : "L1", hops : 5 });
+		s3.exits.set("L1", { node : "2", exit : "R1", hops : 5 });
+		s3.exits.set("R2", { node : "0", exit : "L1", hops : 5 });
+
+		var s4 : Node = new Node("4");
+		s4.exits.set("R1", { node : "0", exit : "L1", hops : 5 });
+		s4.exits.set("L1", { node : "0", exit : "R1", hops : 5 });
 		
 		SceneGraph.set(s1.name, s1);
 		SceneGraph.set(s2.name, s2);
 		SceneGraph.set(s3.name, s3);
+		SceneGraph.set(s4.name, s4);
 		
-		currentSceneName = s2.name;
+		currentSceneName = s1.name;
 	}
 
 	function debugRoutines()

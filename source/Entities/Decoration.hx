@@ -2,12 +2,12 @@ package;
 
 import utils.tiled.TiledImage;
 
-class Decoration extends Entity
+class Decoration extends SceneEntity
 {
-	public function new(X : Float, Y : Float, World : World, Image : TiledImage)
+	public function new(X : Float, Y : Float, World : World, Scene : TiledScene, Image : TiledImage)
 	{
 		// Correct by the offset
-		super(X + Image.offsetX, Y + Image.offsetY, World);
+		super(X + Image.offsetX, Y + Image.offsetY, World, Scene);
 		
 		loadGraphic(Image.imagePath);
 		setSize(Image.width, Image.height);
