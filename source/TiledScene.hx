@@ -53,7 +53,7 @@ class TiledScene extends TiledMap
 			var door : TiledObject = locateDoor(entryDoor);
 			if (door != null)
 			{
-				y = Std.int(y + door.y - floorHeight);
+				y = Std.int(y + door.y + door.height - floorHeight);
 				trace("Found exit '" + entryDoor + "', new Y is: " + y);
 			}
 		}
@@ -240,6 +240,6 @@ class TiledScene extends TiledMap
 	
 	public function getBounds() : FlxRect
 	{
-		return new FlxRect(x, y, x + fullWidth, y + fullHeight);
+		return new FlxRect(x, y, fullWidth, fullHeight);
 	}
 }

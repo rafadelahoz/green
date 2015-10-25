@@ -64,9 +64,9 @@ class World extends FlxState
 		// buildHopwayScene();
 		// buildBugCatcherScene();
 		
-		currentScene = loadScene(currentSceneName, 0, 0);
+		currentScene = loadScene(currentSceneName, -2000, 0);
 		
-		createPlayer(FlxG.width / 2, -10);
+		createPlayer(currentScene.x + currentScene.width / 2, -10);
 
 		FlxG.camera.setBounds(-3750, 0, 10000, FlxG.height, true);
 		FlxG.camera.follow(player, FlxCamera.STYLE_LOCKON, null, 14);
@@ -273,9 +273,6 @@ class World extends FlxState
 				currentGround.destroy();
 				currentGround = null;
 			}
-		
-			// And update the world bounds		
-			updateBounds();
 		}
 	}
 	
@@ -292,19 +289,51 @@ class World extends FlxState
 		if (nextScene != null)
 		{
 			var nextSceneBounds : FlxRect = nextScene.getBounds();
+
+			var x2 : Float;
+			var y2 : Float;
+
+			// Locate lefmost scene
+			if (sceneBounds.left < nextSceneBounds.left)
+			{
+				trace("going right");
+				x1 = sceneBounds.left;
+				x2 = nextSceneBounds.right;
+			}
+			else
+			{
+				trace("going left");
+				x1 = nextSceneBounds.left;
+				x2 = sceneBounds.right;
+			}
+
+			var y2 : Float = Math.max(sceneBounds.bottom, nextSceneBounds.bottom);
+
+			w = x2 - x1;
+			h = y2 - y1;
 			
+			
+			/*trace("x1 = min(" + x1 + ", " + nextSceneBounds.left +")");
 			x1 = Math.min(x1, nextSceneBounds.left);
 			y1 = Math.min(y1, nextSceneBounds.top);
 			
+			trace("x2 = max(" + sceneBounds.right + ", " + nextSceneBounds.right +")");
 			var x2 : Float = Math.max(sceneBounds.right, nextSceneBounds.right);
+
+			// y1 = Math.min(y1, nextSceneBounds.top);
 			var y2 : Float = Math.max(sceneBounds.bottom, nextSceneBounds.bottom);
 			
 			w = x2 - x1;
-			h = y2 - y1;
+			h = y2 - y1;*/
+			
+			trace("(" + x1 + ", " + y1 + ") -> (" + x2 + ", " + y2 + ") [" + w + ", " + h + "]");
 		}
 		
-		var padding : Float = 200;
-		FlxG.camera.setBounds(x1 - padding, y1 - padding, w + padding, h + padding, true);
+		// trace("(" + x1 + ", " + y1 + ") -> (" + x2 + ", " + y2 + ") [" + w + ", " + h + "]");
+		// trace("(" + x1 + ", " + y1 + ") [" + w + ", " + h + "]");
+
+		var padding : Float = FlxG.width;
+		FlxG.camera.setBounds(x1 - padding, y1 - padding, w + padding * 2, h + padding, true);
 		
 		trace("Cam bounds: " + FlxG.camera.bounds);
 		trace("World bounds: " + FlxG.worldBounds);
@@ -331,11 +360,16 @@ class World extends FlxState
 		var s2 : Node = new Node("1");
 		s2.exits.set("R1", { node : "0", exit : "L1", hops : 10 });
 		s2.exits.set("L1", { node : "0", exit : "R1", hops : 10 });
+
+		var s3 : Node = new Node("2");
+		s3.exits.set("R1", { node : "2", exit : "L1", hops : 1 });
+		s3.exits.set("L1", { node : "2", exit : "R1", hops : 1 });
 		
 		SceneGraph.set(s1.name, s1);
 		SceneGraph.set(s2.name, s2);
+		SceneGraph.set(s3.name, s3);
 		
-		currentSceneName = "0";
+		currentSceneName = s2.name;
 	}
 
 	function debugRoutines()
