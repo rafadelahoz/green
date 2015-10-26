@@ -6,6 +6,8 @@ import flixel.text.pxText.PxTextAlign;
 import flixel.system.FlxSound;
 import flixel.util.FlxRandom;
 
+import openfl.display.BitmapData;
+
 /**
  * Manages long chunks of text pixel font text, waiting for the user to confirm 
  * before clearing a full text box

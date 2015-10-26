@@ -88,7 +88,9 @@ class Player extends Entity
 
 				// When falling, hitting a wall stops horizontal movement
 				if (velocity.y > 0 && (isTouching(FlxObject.RIGHT) || isTouching(FlxObject.RIGHT)))
+				{
 					velocity.x = 0;
+				}
 			}
 
 			// Handle jumping

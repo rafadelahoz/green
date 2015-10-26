@@ -122,6 +122,7 @@ class World extends FlxState
 		
 		FlxG.camera.focusOn(player.getMidpoint());
 		
+		FlxG.watch.add(player, "velocity");
 		/*FlxG.watch.add(player, 	"x");
 		FlxG.watch.add(player, 	"y");
 		FlxG.watch.add(player, 	"onAir");*/
@@ -253,7 +254,7 @@ class World extends FlxState
 			}
 			else if (!nextSceneNode.exits.exists(exit.name))
 			{
-				trace("Invalid entry " + exit.name + " for current scene + " + nextSceneName);
+				trace("Invalid entry " + exit.name + " for current scene " + nextSceneName);
 				return;
 			}
 			
@@ -339,8 +340,8 @@ class World extends FlxState
 		s3.exits.set("R2", { node : "0", exit : "L1", hops : 5 });
 
 		var s4 : Node = new Node("4");
-		s4.exits.set("R1", { node : "0", exit : "L1", hops : 5 });
-		s4.exits.set("L1", { node : "0", exit : "R1", hops : 5 });
+		s4.exits.set("R1", { node : "4", exit : "L1", hops : 5 });
+		s4.exits.set("L1", { node : "4", exit : "R1", hops : 5 });
 		
 		var twoheights : Node = new Node("verticalL");
 		twoheights.exits.set("TOP-L", { node : "top-passage", exit : "R", hops : 6 });
@@ -356,6 +357,10 @@ class World extends FlxState
 		descent.exits.set("L", { node : "verticalL", exit : "TOP-R", hops : 6 });
 		descent.exits.set("R", { node : "verticalL", exit : "BOT-L", hops : 6 });
 		
+		var narrow : Node = new Node("narrow");
+		narrow.exits.set("L1", { node : "narrow", exit : "R1", hops: 3 });
+		narrow.exits.set("R1", { node : "narrow", exit : "L1", hops: 3 });
+		
 		SceneGraph.set(s1.name, s1);
 		SceneGraph.set(s2.name, s2);
 		SceneGraph.set(s3.name, s3);
@@ -364,6 +369,8 @@ class World extends FlxState
 		SceneGraph.set(twoheights.name, twoheights);
 		SceneGraph.set(ascent.name, ascent);
 		SceneGraph.set(descent.name, descent);
+		
+		SceneGraph.set(narrow.name, narrow);
 		
 		currentSceneName = twoheights.name;
 	}
