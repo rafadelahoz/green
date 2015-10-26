@@ -10,6 +10,6 @@ class SceneEntity extends Entity
 		
 		scene = Scene;
 
-		trace("New SceneEntity@" + scene.name);
+		// trace("New SceneEntity@" + scene.name);
 	}
 }

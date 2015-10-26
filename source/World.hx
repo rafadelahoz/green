@@ -64,13 +64,13 @@ class World extends FlxState
 		// buildHopwayScene();
 		// buildBugCatcherScene();
 		
-		currentScene = loadScene(currentSceneName, -2000, 0);
+		currentScene = loadScene(currentSceneName, 0, 0);
 		updateBounds();
 		
 		createPlayer(currentScene.x + currentScene.fullWidth / 2, -10);
 
 		// FlxG.camera.setBounds(-3750, 0, 10000, FlxG.height, true);
-		FlxG.camera.follow(player, FlxCamera.STYLE_LOCKON, null, 14);
+		focusCamera();
 		
 		FlxG.watch.add(FlxG.camera, "scroll");
 	}
@@ -127,11 +127,16 @@ class World extends FlxState
 		FlxG.watch.add(player, 	"onAir");*/
 	}
 	
+	function focusCamera() 
+	{
+		FlxG.camera.follow(player, FlxCamera.STYLE_LOCKON, null, 14);
+	}
+	
 	function buildHopwayScene()
 	{
 		var wallcolor : Int = 0x0083769C;
 		
-		FlxG.camera.setBounds(-3750, 0, 10000, FlxG.height, true);
+		FlxG.camera.setBounds(-3750, -1000, 10000, 1000 + FlxG.height, true);
 		
 		var g : FlxSprite = new FlxSprite(-4000, FlxG.height - 16).makeGraphic(Std.int(FlxG.camera.bounds.width), 2, wallcolor);
 		g.solid = true;
@@ -216,9 +221,6 @@ class World extends FlxState
 				currentGround = floor;
 				ground.add(currentGround);
 					
-				// TODO: Compute appropriate scene Y considering target exit floor alignment
-				// TODO: Probably the scene will have to be loaded to compute the position
-				
 				// Load next scene tilemap & data at correct position
 				var floorHeight : Float = exit.y + exit.height;
 				nextScene = loadScene(exitData.node, targetSceneX, 0, exit.direction, floorHeight, exitData.exit);
@@ -290,54 +292,23 @@ class World extends FlxState
 		if (nextScene != null)
 		{
 			var nextSceneBounds : FlxRect = nextScene.getBounds();
-
-			/*var x2 : Float;
-			var y2 : Float;
-
-			// Locate lefmost scene
-			if (sceneBounds.left < nextSceneBounds.left)
-			{
-				trace("going right");
-				x1 = sceneBounds.left;
-				x2 = nextSceneBounds.right;
-			}
-			else
-			{
-				trace("going left");
-				x1 = nextSceneBounds.left;
-				x2 = sceneBounds.right;
-			}
-
-			var y2 : Float = Math.max(sceneBounds.bottom, nextSceneBounds.bottom);
-
-			w = x2 - x1;
-			h = y2 - y1;*/
 			
-			
-			trace("x1 = min(" + x1 + ", " + nextSceneBounds.left +")");
 			x1 = Math.min(x1, nextSceneBounds.left);
 			y1 = Math.min(y1, nextSceneBounds.top);
 			
-			trace("x2 = max(" + sceneBounds.right + ", " + nextSceneBounds.right +")");
 			var x2 : Float = Math.max(sceneBounds.right, nextSceneBounds.right);
-
-			// y1 = Math.min(y1, nextSceneBounds.top);
 			var y2 : Float = Math.max(sceneBounds.bottom, nextSceneBounds.bottom);
 			
 			w = x2 - x1;
 			h = y2 - y1;
-			
-			trace("(" + x1 + ", " + y1 + ") -> (" + x2 + ", " + y2 + ") [" + w + ", " + h + "]");
 		}
-		
-		// trace("(" + x1 + ", " + y1 + ") -> (" + x2 + ", " + y2 + ") [" + w + ", " + h + "]");
-		// trace("(" + x1 + ", " + y1 + ") [" + w + ", " + h + "]");
 
 		var padding : Float = FlxG.width;
-		FlxG.camera.setBounds(x1 - padding, y1 - padding, w + padding * 2, h + padding, true);
+		FlxG.camera.setBounds(x1 - padding, y1 - padding, w + padding * 2, h + padding);
+		FlxG.worldBounds.set(x1 - padding, y1 - padding, w + padding * 2, h + padding);
 		
-		trace("Cam bounds: " + FlxG.camera.bounds);
-		trace("World bounds: " + FlxG.worldBounds);
+		// trace("Cam bounds: " + FlxG.camera.bounds);
+		// trace("World bounds: " + FlxG.worldBounds);
 	}
 	
 	public static function oppositeDirectionOf(direction : Int) : Int
@@ -355,11 +326,11 @@ class World extends FlxState
 		SceneGraph = new Map<String, Node>();
 		
 		var s1 : Node = new Node("0");
-		s1.exits.set("R1", { node : "4", exit : "L1", hops : 5 });
-		s1.exits.set("L1", { node : "4", exit : "R2", hops : 5 });
+		s1.exits.set("R1", { node : "1", exit : "L1", hops : 5 });
+		s1.exits.set("L1", { node : "1", exit : "R2", hops : 5 });
 		
 		var s2 : Node = new Node("1");
-		s2.exits.set("R1", { node : "2", exit : "L1", hops : 5 });
+		s2.exits.set("R1", { node : "0", exit : "L1", hops : 5 });
 		s2.exits.set("L1", { node : "0", exit : "R1", hops : 5 });
 
 		var s3 : Node = new Node("2");
@@ -371,27 +342,48 @@ class World extends FlxState
 		s4.exits.set("R1", { node : "0", exit : "L1", hops : 5 });
 		s4.exits.set("L1", { node : "0", exit : "R1", hops : 5 });
 		
+		var twoheights : Node = new Node("verticalL");
+		twoheights.exits.set("TOP-L", { node : "top-passage", exit : "R", hops : 6 });
+		twoheights.exits.set("TOP-R", { node : "descent",     exit : "L", hops : 6 });
+		twoheights.exits.set("BOT-R", { node : "top-passage", exit : "L", hops : 6 });
+		twoheights.exits.set("BOT-L", { node : "descent",     exit : "R", hops : 6 });
+		
+		var ascent : Node = new Node("top-passage");
+		ascent.exits.set("L", { node : "verticalL", exit : "BOT-R", hops : 6 });
+		ascent.exits.set("R", { node : "verticalL", exit : "TOP-L", hops : 6 });
+		
+		var descent : Node = new Node("descent");
+		descent.exits.set("L", { node : "verticalL", exit : "TOP-R", hops : 6 });
+		descent.exits.set("R", { node : "verticalL", exit : "BOT-L", hops : 6 });
+		
 		SceneGraph.set(s1.name, s1);
 		SceneGraph.set(s2.name, s2);
 		SceneGraph.set(s3.name, s3);
 		SceneGraph.set(s4.name, s4);
 		
-		currentSceneName = s1.name;
+		SceneGraph.set(twoheights.name, twoheights);
+		SceneGraph.set(ascent.name, ascent);
+		SceneGraph.set(descent.name, descent);
+		
+		currentSceneName = twoheights.name;
 	}
 
 	function debugRoutines()
 	{
 		var mousePos : FlxPoint = FlxG.mouse.getWorldPosition();
 
+		// 1. Create fly
 		if (FlxG.keys.pressed.ONE)
 		{
 			add(new Fly(FlxRandom.floatRanged(0, FlxG.width), -10, this));
 		}
+		// 2. Create balloon
 		else if (FlxG.keys.justPressed.TWO) 
 		{
 			elements.add(new Balloon(mousePos.x, mousePos.y, this));
 		}
 		
+		// P: Display camera and world bounds data
 		if (FlxG.keys.justPressed.P)
 		{
 			trace("Cam bounds: " + FlxG.camera.bounds);
@@ -399,10 +391,33 @@ class World extends FlxState
 			trace("Zoom: " + FlxG.camera.zoom);
 		}
 		
+		// O: Switch between Player and DebugPlayer
+		if (FlxG.keys.justPressed.O)
+		{
+			var x : Float = player.x;
+			var y : Float = player.y;
+			
+			if (player.overridenControl)
+			{
+				player.destroy();
+				player = new Player(x, y, this);
+			}
+			else
+			{
+				player.destroy();
+				player = new DebugPlayer(x, y, this);
+			}
+			
+			add(player);
+			
+			focusCamera();
+		}
+		
+		// T: Jump 100 pixels
 		if (FlxG.keys.justPressed.T)
 		{
 			FlxG.camera.followLerp = 0;
-			player.x += 100;
+			player.x += (player.facing == FlxObject.LEFT ? -1 : 1) * 100;
 			FlxG.camera.focusOn(player.getMidpoint());
 		}
 		else

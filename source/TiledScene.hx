@@ -107,8 +107,8 @@ class TiledScene extends TiledMap
 			}
 			else if (tileLayer.properties.contains("solid")) 
 			{
-				collidableTileLayers.push(tilemap);
-				tilemap.ignoreDrawDebug = false;
+				// collidableTileLayers.push(tilemap);
+				// tilemap.ignoreDrawDebug = false;
 			}
 			else
 			{
@@ -158,6 +158,11 @@ class TiledScene extends TiledMap
 		/** Collectibles **/
 		
 		/** Elements **/
+			case "solid": 
+				var solid : SceneEntity = new SceneEntity(x, y, state, this);
+				solid.makeGraphic(o.width, o.height, 0xFFDDDDDD);
+				solid.immovable = true;
+				state.ground.add(solid);
 			case "decoration":
 				// trace("adding decoration!");
 				var gid = o.gid;
@@ -221,20 +226,30 @@ class TiledScene extends TiledMap
 
 	public function destroy() 
 	{
+		backgroundTiles.clear();
 		backgroundTiles.destroy();
+		
+		foregroundTiles.clear();
 		foregroundTiles.destroy();
+		
+		overlayTiles.clear();
 		overlayTiles.destroy();
+		
 		for (layer in collidableTileLayers)
 			layer.destroy();
+			
+		collidableTileLayers = null;
 
 		world.decoration.forEachOfType(SceneEntity, removeCurrentSceneEntities);
 		world.exits.forEachOfType(SceneEntity, removeCurrentSceneEntities);
+		world.ground.forEachOfType(SceneEntity, removeCurrentSceneEntities);
 	}
 
 	public function removeCurrentSceneEntities(entity : SceneEntity) : Void
 	{
 		if (entity.scene == world.currentScene)
 		{
+			// trace("Removing @" + entity.scene.name);
 			world.remove(entity);
 			entity.destroy();
 		}

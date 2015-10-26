@@ -21,6 +21,8 @@ class Player extends Entity
 	var maxJumpHold : Float;
 
 	var display : FlxSprite;
+	
+	public var overridenControl : Bool = false;
 
 	public function new(X : Float, Y : Float, World : World)
 	{
@@ -50,65 +52,78 @@ class Player extends Entity
 
 	override public function update()
 	{	
-		onAir = !isTouching(FlxObject.DOWN);
-		
-		if (GamePad.checkButton(GamePad.Right) || GamePad.checkButton(GamePad.Left))
+		// Control can be overriden by others as required
+		if (!overridenControl)
 		{
-			jumpHoldTime = Math.min(jumpHoldTime + jumpHoldDelta, maxJumpHold);
-		}
-		
-		if (!onAir)
-		{
-			canJump = true;
+			onAir = !isTouching(FlxObject.DOWN);
 			
-			velocity.x = 0;
-			velocity.y = 0;
-
-			animation.play("idle");
-		}
-		else
-		{
-			acceleration.y = Gravity;
-
-			if (velocity.y < 0)
-				animation.play("jump");
-			else if (velocity.y > 0)
-				animation.play("fall");
-
-			if (isTouching(FlxObject.RIGHT) || isTouching(FlxObject.RIGHT))
+			// TODO: Handle only one direction, restart count if pressing another key
+			if (GamePad.checkButton(GamePad.Right) || GamePad.checkButton(GamePad.Left))
+			{
+				jumpHoldTime = Math.min(jumpHoldTime + jumpHoldDelta, maxJumpHold);
+			}
+			
+			if (!onAir)
+			{
+				// Allow jumping when touching ground
+				canJump = true;
+				
+				// Stop moving
 				velocity.x = 0;
-		}
+				velocity.y = 0;
 
-		if (canJump)
-		{
-			if (GamePad.justReleased(GamePad.Right))
-			{
-				velocity = calculateJumpSpeed(FlxObject.RIGHT);
-				canJump = false;
-				jumpHoldTime = 0;
-
-				facing = FlxObject.RIGHT;
-				flipX = false;
+				// And display the idle graphic
+				animation.play("idle");
 			}
-			else if (GamePad.justReleased(GamePad.Left))
+			else
 			{
-				velocity = calculateJumpSpeed(FlxObject.LEFT);
-				canJump = false;
-				jumpHoldTime = 0;
+				// Gravity affects when onAir
+				acceleration.y = Gravity;
 
-				facing = FlxObject.LEFT;
-				flipX = true;
+				// Display the appropriate graphic when rising and falling
+				if (velocity.y < 0)
+					animation.play("jump");
+				else if (velocity.y > 0)
+					animation.play("fall");
+
+				// When falling, hitting a wall stops horizontal movement
+				if (velocity.y > 0 && (isTouching(FlxObject.RIGHT) || isTouching(FlxObject.RIGHT)))
+					velocity.x = 0;
 			}
-		}
-		
-		if (!GamePad.checkButton(GamePad.Right) && !GamePad.checkButton(GamePad.Left))
-		{
-			jumpHoldTime = 0;
+
+			// Handle jumping
+			if (canJump)
+			{
+				if (GamePad.justReleased(GamePad.Right))
+				{
+					velocity = calculateJumpSpeed(FlxObject.RIGHT);
+					canJump = false;
+					jumpHoldTime = 0;
+
+					facing = FlxObject.RIGHT;
+					flipX = false;
+				}
+				else if (GamePad.justReleased(GamePad.Left))
+				{
+					velocity = calculateJumpSpeed(FlxObject.LEFT);
+					canJump = false;
+					jumpHoldTime = 0;
+
+					facing = FlxObject.LEFT;
+					flipX = true;
+				}
+			}
+			
+			if (!GamePad.checkButton(GamePad.Right) && !GamePad.checkButton(GamePad.Left))
+			{
+				jumpHoldTime = 0;
+			}
 		}
 
 		super.update();
 		
-		updateDisplay();
+		// Update debug jump strength display
+		// updateDisplay();
 	}
 	
 	function updateDisplay()
@@ -126,7 +141,7 @@ class Player extends Entity
 		if (FlxG.keys.justReleased.RIGHT)
 			FlxSpriteUtil.drawRect(display, 8, 0, 4, 4, 0xFFFF8888);
 		
-		// display.update();
+		display.update();
 	}
 	
 	override public function draw()
