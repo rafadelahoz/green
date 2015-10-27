@@ -9,6 +9,7 @@ import flixel.util.FlxRect;
 import flixel.util.FlxPoint;
 import flixel.group.FlxGroup;
 import flixel.tile.FlxTilemap;
+import flixel.addons.display.FlxBackdrop;
 
 import utils.tiled.TiledMap;
 import utils.tiled.TiledObject;
@@ -201,18 +202,28 @@ class TiledScene extends TiledMap
 				decoration.scrollFactor.x = scrollX;
 				decoration.scrollFactor.y = scrollY;
 				state.decoration.add(decoration);
-		/** Enemies **/
-			/*case "runner":
-				var jumper : Bool = o.custom.contains("jumper");
-				var runner : EnemyRunner = new EnemyRunner(x, y, state, jumper);
-				initEnemy(runner, o);
-				state.addEnemy(runner);
-			case "walker": 
-				var hazardType : Hazard.HazardType = getHType(o);
-				var walker : EnemyWalker = new EnemyWalker(x, y, state);
-				initEnemy(walker, o);
-				walker.hazardType = hazardType;
-				state.addEnemy(walker);*/
+				
+			// TODO: Just a draft!
+			case "background":
+				/*var gid = o.gid;
+				var tiledImage : TiledImage = getImageSource(gid);
+				if (tiledImage == null)
+				{
+					trace("Could not locate image source for gid=" + gid + "!");
+				}
+				
+				var scrollX : Float = 1;
+				var scrollY : Float = 1;
+				
+				if (o.custom.contains("scrollX"))
+					scrollX = Std.parseFloat(o.custom.get("scrollX"));
+					
+				if (o.custom.contains("scrollY"))
+					scrollY = Std.parseFloat(o.custom.get("scrollY"));
+					
+				var background : FlxBackdrop = new FlxBackdrop(tiledImage.imagePath, scrollX, scrollY);
+				state.ground.add(background);
+				*/
 			default:
 				// !
 		}

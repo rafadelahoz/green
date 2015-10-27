@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="120" height="20" tilewidth="8" tileheight="8" nextobjectid="11">
- <tileset firstgid="1" name="Detail" tilewidth="40" tileheight="32" tilecount="1">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="120" height="20" tilewidth="8" tileheight="8" nextobjectid="12">
+ <tileset firstgid="1" name="Detail" tilewidth="112" tileheight="224" tilecount="2">
   <tile id="0">
    <image width="40" height="32" source="../tilesets/detail/flowers-dead.png"/>
+  </tile>
+  <tile id="1">
+   <image width="112" height="224" source="../tilesets/detail/bg.png"/>
   </tile>
  </tileset>
  <objectgroup name="Entities">
@@ -42,6 +45,12 @@
   <object id="10" type="backdrop" gid="1" x="416" y="160" width="40" height="32">
    <properties>
     <property name="scrollX" value="0.5"/>
+   </properties>
+  </object>
+  <object id="11" type="background" gid="2" x="0" y="224" width="112" height="224">
+   <properties>
+    <property name="scrollX" value="0.1"/>
+    <property name="scrollY" value="0.8"/>
    </properties>
   </object>
  </objectgroup>

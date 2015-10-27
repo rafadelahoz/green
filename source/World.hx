@@ -344,10 +344,10 @@ class World extends FlxState
 		s4.exits.set("L1", { node : "4", exit : "R1", hops : 5 });
 		
 		var twoheights : Node = new Node("verticalL");
-		twoheights.exits.set("TOP-L", { node : "top-passage", exit : "R", hops : 6 });
-		twoheights.exits.set("TOP-R", { node : "descent",     exit : "L", hops : 6 });
-		twoheights.exits.set("BOT-R", { node : "top-passage", exit : "L", hops : 6 });
-		twoheights.exits.set("BOT-L", { node : "descent",     exit : "R", hops : 6 });
+		twoheights.exits.set("TOP-L", { node : "top-passage", exit : "R", hops : 10 });
+		twoheights.exits.set("TOP-R", { node : "descent",     exit : "L", hops : 10 });
+		twoheights.exits.set("BOT-R", { node : "top-passage", exit : "L", hops : 10 });
+		twoheights.exits.set("BOT-L", { node : "descent",     exit : "R", hops : 10 });
 		
 		var ascent : Node = new Node("top-passage");
 		ascent.exits.set("L", { node : "long", exit : "R", hops : 6 });
