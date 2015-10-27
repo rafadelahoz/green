@@ -15,7 +15,7 @@ class Exit extends SceneEntity
 		super(X, Y, World, Scene);
 
 		visible = true;
-		makeGraphic(Std.int(Width), Std.int(Height), 0xFF000001);
+		makeGraphic(Std.int(Width), Std.int(Height), 0x00000001);
 		setSize(Width, Height);
 
 		immovable = true;

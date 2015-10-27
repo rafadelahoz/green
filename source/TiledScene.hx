@@ -160,7 +160,7 @@ class TiledScene extends TiledMap
 		/** Elements **/
 			case "solid": 
 				var solid : SceneEntity = new SceneEntity(x, y, state, this);
-				solid.makeGraphic(o.width, o.height, 0xFFDDDDDD);
+				solid.makeGraphic(o.width, o.height, 0x00DDDDDD);
 				solid.immovable = true;
 				state.ground.add(solid);
 			case "decoration":
@@ -177,6 +177,30 @@ class TiledScene extends TiledMap
 					state.decoration.add(decoration);
 				}
 				
+			case "backdrop":
+				var gid = o.gid;
+				var tiledImage : TiledImage = getImageSource(gid);
+				if (tiledImage == null)
+				{
+					trace("Could not locate image source for gid=" + gid + "!");
+				}
+				
+				var scrollX : Float = 1;
+				var scrollY : Float = 1;
+				
+				if (o.custom.contains("scrollX"))
+					scrollX = Std.parseFloat(o.custom.get("scrollX"));
+					
+				if (o.custom.contains("scrollY"))
+					scrollY = Std.parseFloat(o.custom.get("scrollY"));
+				
+				x = Std.int(x * scrollX);
+				y = Std.int(y * scrollY);
+				
+				var decoration : Decoration = new Decoration(x, y, state, this, tiledImage);
+				decoration.scrollFactor.x = scrollX;
+				decoration.scrollFactor.y = scrollY;
+				state.decoration.add(decoration);
 		/** Enemies **/
 			/*case "runner":
 				var jumper : Bool = o.custom.contains("jumper");

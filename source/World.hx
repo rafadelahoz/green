@@ -350,16 +350,20 @@ class World extends FlxState
 		twoheights.exits.set("BOT-L", { node : "descent",     exit : "R", hops : 6 });
 		
 		var ascent : Node = new Node("top-passage");
-		ascent.exits.set("L", { node : "verticalL", exit : "BOT-R", hops : 6 });
+		ascent.exits.set("L", { node : "long", exit : "R", hops : 6 });
 		ascent.exits.set("R", { node : "verticalL", exit : "TOP-L", hops : 6 });
 		
 		var descent : Node = new Node("descent");
-		descent.exits.set("L", { node : "verticalL", exit : "TOP-R", hops : 6 });
-		descent.exits.set("R", { node : "verticalL", exit : "BOT-L", hops : 6 });
+		descent.exits.set("L", { node : "verticalL", exit : "TOP-R", hops : 16 });
+		descent.exits.set("R", { node : "long", 	 exit : "L", hops : 16 });
 		
 		var narrow : Node = new Node("narrow");
 		narrow.exits.set("L1", { node : "narrow", exit : "R1", hops: 3 });
 		narrow.exits.set("R1", { node : "narrow", exit : "L1", hops: 3 });
+		
+		var long : Node = new Node("long");
+		long.exits.set("L", { node : "top-passage", exit : "R", hops : 6 });
+		long.exits.set("R", { node : "descent", exit : "L", hops : 6 });
 		
 		SceneGraph.set(s1.name, s1);
 		SceneGraph.set(s2.name, s2);
@@ -369,6 +373,7 @@ class World extends FlxState
 		SceneGraph.set(twoheights.name, twoheights);
 		SceneGraph.set(ascent.name, ascent);
 		SceneGraph.set(descent.name, descent);
+		SceneGraph.set(long.name, long);
 		
 		SceneGraph.set(narrow.name, narrow);
 		

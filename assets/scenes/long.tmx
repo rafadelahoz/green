@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="120" height="20" tilewidth="8" tileheight="8" nextobjectid="11">
+ <tileset firstgid="1" name="Detail" tilewidth="40" tileheight="32" tilecount="1">
+  <tile id="0">
+   <image width="40" height="32" source="../tilesets/detail/flowers-dead.png"/>
+  </tile>
+ </tileset>
+ <objectgroup name="Entities">
+  <object id="1" type="solid" x="0" y="152" width="960" height="8"/>
+  <object id="2" type="backdrop" gid="1" x="0" y="160" width="40" height="32">
+   <properties>
+    <property name="scrollX" value="0.5"/>
+   </properties>
+  </object>
+  <object id="4" type="backdrop" gid="1" x="80" y="160" width="40" height="32">
+   <properties>
+    <property name="scrollX" value="0.5"/>
+   </properties>
+  </object>
+  <object id="5" type="exit" x="0" y="0" width="8" height="152">
+   <properties>
+    <property name="direction" value="left"/>
+    <property name="name" value="L"/>
+   </properties>
+  </object>
+  <object id="7" type="exit" x="952" y="0" width="8" height="152">
+   <properties>
+    <property name="direction" value="right"/>
+    <property name="name" value="R"/>
+   </properties>
+  </object>
+  <object id="8" type="backdrop" gid="1" x="760" y="160" width="40" height="32">
+   <properties>
+    <property name="scrollX" value="0.5"/>
+   </properties>
+  </object>
+  <object id="9" type="backdrop" gid="1" x="832" y="160" width="40" height="32">
+   <properties>
+    <property name="scrollX" value="0.5"/>
+   </properties>
+  </object>
+  <object id="10" type="backdrop" gid="1" x="416" y="160" width="40" height="32">
+   <properties>
+    <property name="scrollX" value="0.5"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>
