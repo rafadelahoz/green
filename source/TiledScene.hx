@@ -59,7 +59,6 @@ class TiledScene extends TiledMap
 			if (door != null)
 			{
 				y = Std.int(floorHeight - (door.y + door.height));
-				trace("Found exit '" + entryDoor + "', new Y is: " + y);
 			}
 		}
 

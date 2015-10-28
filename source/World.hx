@@ -9,6 +9,7 @@ import flixel.util.FlxRect;
 import flixel.util.FlxMath;
 import flixel.util.FlxPoint;
 import flixel.util.FlxRandom;
+import flixel.util.FlxColorUtil;
 import flixel.group.FlxGroup;
 
 import text.TextBox;
@@ -26,9 +27,12 @@ class World extends FlxState
 	public var SceneGraph : Map<String, Node>;
 	public var currentSceneName : String;
 	public var nextSceneName : String;
-	
+	public var traversingDirection : Int;
 	public var currentScene : TiledScene;
 	public var nextScene : TiledScene;
+	
+	public var currentBgColor : Int;
+	public var targetBgColor : Int;
 	
 	public var currentGround : FlxObject;
 
@@ -40,6 +44,9 @@ class World extends FlxState
 		GamePad.init();
 		
 		FlxG.scaleMode = new flixel.system.scaleModes.PixelPerfectScaleMode();
+		
+		currentBgColor = 0xFF000000;
+		targetBgColor = 0xFF000000;
 				
 		ground = new FlxGroup();
 		add(ground);
@@ -83,6 +90,26 @@ class World extends FlxState
 	override public function update():Void
 	{
 		GamePad.update();
+		
+		// Background color lerp-ing
+		if (targetBgColor != -1 && targetBgColor != FlxG.camera.bgColor && currentGround != null)
+		{
+			var length : Int = Std.int(currentGround.width);			
+			var current : Int = 0;
+			
+			if (traversingDirection == FlxObject.RIGHT)
+				current = Std.int(player.x - currentGround.x);
+			else if (traversingDirection == FlxObject.LEFT)
+				current = Std.int(currentGround.x + currentGround.width - player.x);
+			
+			if (current < 0)
+				current = 0;
+			if (current > length)
+				current = length;
+			
+			var color : Int = FlxColorUtil.interpolateColor(currentBgColor, targetBgColor, length, current);
+			FlxG.camera.bgColor = color;
+		}
 		
 		if (currentScene != null)
 			currentScene.collideWithLevel(player);
@@ -197,7 +224,7 @@ class World extends FlxState
 			{
 				nextSceneName = exitData.node;
 				
-				trace("exiting towards " + nextSceneName);
+				trace("Exiting towards " + nextSceneName);
 				
 				// Compute distance to next Scene
 				var length : Int = exitData.hops * 32;
@@ -218,6 +245,9 @@ class World extends FlxState
 				}
 				floor.immovable = true;
 				
+				// Store the traversing direction
+				traversingDirection = exit.direction;
+				
 				// Store and set it
 				currentGround = floor;
 				ground.add(currentGround);
@@ -225,6 +255,9 @@ class World extends FlxState
 				// Load next scene tilemap & data at correct position
 				var floorHeight : Float = exit.y + exit.height;
 				nextScene = loadScene(exitData.node, targetSceneX, 0, exit.direction, floorHeight, exitData.exit);
+				
+				// Setup the background color
+				targetBgColor = nextScene.backgroundColor;
 				
 				// And update the world bounds
 				updateBounds();
@@ -277,6 +310,11 @@ class World extends FlxState
 				currentGround.destroy();
 				currentGround = null;
 			}
+			
+			// Setup background
+			FlxG.camera.bgColor = currentScene.backgroundColor;
+			currentBgColor = currentScene.backgroundColor;
+			targetBgColor = -1;
 		}
 	}
 	

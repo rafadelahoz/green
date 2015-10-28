@@ -9,7 +9,8 @@ import sys.FileSystem;
 #end
 
 /**
- * Copyright (c) 2013 by Samuel Batista
+ * Modified by Rafa de la Hoz from
+ *	Copyright (c) 2013 by Samuel Batista
  * (original by Matt Tuttle based on Thomas Jahn's. Haxe port by Adrien Fischer)
  * This content is released under the MIT License.
  */
@@ -17,6 +18,8 @@ class TiledMap
 {
 	public var version:String; 
 	public var orientation:String;
+	
+	public var backgroundColor : Int;
 	
 	public var width:Int;
 	public var height:Int; 
@@ -76,6 +79,18 @@ class TiledMap
 		if (orientation == null) 
 		{
 			orientation = "orthogonal";
+		}
+		
+		backgroundColor = 0xFF000000;
+		
+		if (source.has.backgroundcolor)
+		{
+			var colorStr : String = source.att.backgroundcolor;
+			if (colorStr != null)
+			{
+				colorStr = StringTools.replace(colorStr, "#", "0xFF");
+				backgroundColor = Std.parseInt(colorStr);
+			}
 		}
 		
 		width = Std.parseInt(source.att.width);
