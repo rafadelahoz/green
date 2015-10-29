@@ -37,6 +37,13 @@ class Main extends Sprite
 		{
 			addEventListener(Event.ADDED_TO_STAGE, init);
 		}
+		
+		Lib.current.stage.addEventListener(Event.DEACTIVATE, onDeactivate);
+	}
+	
+	private function onDeactivate(?E:Event):Void
+	{
+		// Save here!
 	}
 	
 	private function init(?E:Event):Void 

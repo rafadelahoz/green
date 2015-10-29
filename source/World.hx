@@ -8,6 +8,7 @@ import flixel.FlxCamera;
 import flixel.util.FlxRect;
 import flixel.util.FlxMath;
 import flixel.util.FlxPoint;
+import flixel.util.FlxTimer;
 import flixel.util.FlxRandom;
 import flixel.util.FlxColorUtil;
 import flixel.group.FlxGroup;
@@ -418,6 +419,9 @@ class World extends FlxState
 		currentSceneName = twoheights.name;
 	}
 
+	var BallonGenerator : Bool = false;
+	var timer : FlxTimer = null;
+	
 	function debugRoutines()
 	{
 		var mousePos : FlxPoint = FlxG.mouse.getWorldPosition();
@@ -474,5 +478,28 @@ class World extends FlxState
 		{
 			FlxG.camera.followLerp = 14;
 		}
+		
+		// B: Balloon Generation
+		if (FlxG.keys.justPressed.B)
+		{
+			BallonGenerator = !BallonGenerator;
+			if (BallonGenerator)
+			{
+				timer = new FlxTimer(FlxRandom.floatRanged(0.25, 1.5), spawnBalloon);
+			}
+			else
+			{
+				timer.cancel();
+			}
+		}
+	}
+	
+	function spawnBalloon(t : FlxTimer) : Void
+	{
+		var x : Float = FlxRandom.floatRanged(currentScene.x, currentScene.x + currentScene.fullWidth);
+		var y : Float = currentScene.y + currentScene.fullHeight - 16;
+		elements.add(new Balloon(x, y, this));
+		
+		timer = new FlxTimer(FlxRandom.floatRanged(1.25, 2.5), spawnBalloon);
 	}
 }
