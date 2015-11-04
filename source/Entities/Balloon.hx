@@ -37,7 +37,7 @@ class Balloon extends Entity
 			velocity.y = -Speed;
 			
 		// If we have load, center it on yourself
-		if (overlapsAt(x, y-1, world.player))
+		if (isTouching(FlxObject.UP) && overlapsAt(x, y-1, world.player))
 		{
 			var lerpedX : Float = FlxMath.lerp(world.player.getMidpoint().x, getMidpoint().x, 0.5);
 			var deltaX : Float = lerpedX - world.player.getMidpoint().x;
