@@ -456,6 +456,7 @@ class World extends FlxState
 			BallonGenerator = !BallonGenerator;
 			if (BallonGenerator)
 			{
+				lastBalloon = null;
 				timer = new FlxTimer(FlxRandom.floatRanged(0.25, 1.5), spawnBalloon);
 			}
 			else
@@ -465,9 +466,14 @@ class World extends FlxState
 		}
 	}
 	
+	var lastBalloon : FlxObject;
 	function spawnBalloon(t : FlxTimer) : Void
 	{
 		var bounds : FlxRect;
+		var useBlank : Bool = false;
+		var blankLeft : Float = -1;
+		var blankRight : Float = -1;
+		
 		if (currentScene == null)
 		{
 			bounds = new FlxRect(32, 16, FlxG.width-56, FlxG.height);
@@ -477,9 +483,35 @@ class World extends FlxState
 			bounds = new FlxRect(currentScene.x, currentScene.y, currentScene.fullWidth, currentScene.fullHeight);
 		}
 		
-		var x : Float = FlxRandom.floatRanged(bounds.x, bounds.x + bounds.width);
+		if (lastBalloon != null)
+		{
+			// Calculate distance from last balloon
+			var sceneBounds : FlxRect = bounds;
+			
+			var lastX : Float = lastBalloon.x;
+			var maxDelta : Float = 64;
+			var minDelta : Float = 18;
+			bounds = new FlxRect(Math.max(lastX - maxDelta, sceneBounds.x), bounds.y, 
+								 Math.min(maxDelta, bounds.width - lastX), bounds.height);
+								 
+			useBlank = true;
+			blankLeft = lastX - minDelta;
+			blankRight = lastX + minDelta;
+		}
+		
+		var x : Float = -1;
+		if (useBlank)
+		{
+			x = blankLeft+1;
+			while (x > blankLeft && x < blankRight)
+				x = FlxRandom.floatRanged(bounds.x, bounds.x + bounds.width);
+		}
+		else
+			x = FlxRandom.floatRanged(bounds.x, bounds.x + bounds.width);
+		
 		var y : Float = bounds.y + bounds.height - 16;
-		elements.add(new Balloon(x, y, this));
+		lastBalloon = new Balloon(x, y, this);
+		elements.add(lastBalloon);
 		
 		timer = new FlxTimer(FlxRandom.floatRanged(1.25, 2.5), spawnBalloon);
 	}
