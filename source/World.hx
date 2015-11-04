@@ -69,9 +69,6 @@ class World extends FlxState
 		
 		loadScenesGraph();
 		
-		// buildHopwayScene();
-		// buildBugCatcherScene();
-		
 		currentScene = loadScene(currentSceneName, 0, 0);
 		updateBounds();
 		
@@ -159,45 +156,6 @@ class World extends FlxState
 	function focusCamera() 
 	{
 		FlxG.camera.follow(player, FlxCamera.STYLE_LOCKON, null, 14);
-	}
-	
-	function buildHopwayScene()
-	{
-		var wallcolor : Int = 0x0083769C;
-		
-		FlxG.camera.setBounds(-3750, -1000, 10000, 1000 + FlxG.height, true);
-		
-		var g : FlxSprite = new FlxSprite(-4000, FlxG.height - 16).makeGraphic(Std.int(FlxG.camera.bounds.width), 2, wallcolor);
-		g.solid = true;
-		g.immovable = true;
-		
-		ground.add(g);
-		
-		createPlayer(FlxG.camera.bounds.x + FlxG.camera.bounds.width / 2, -16);
-	}
-	
-	function buildBugCatcherScene()
-	{
-		FlxG.camera.setBounds(0, 0, FlxG.width, FlxG.height, true);
-	
-		var wallcolor : Int = 0x0083769C;
-		var wallwidth : Int = 32;
-	
-		var g : FlxSprite = new FlxSprite(0, FlxG.height - 16).makeGraphic(FlxG.width, 2, wallcolor);
-		g.solid = true;
-		g.immovable = true;
-		
-		ground.add(g);
-
-		g = new FlxSprite(0, 0).makeGraphic(wallwidth, FlxG.height, wallcolor);
-		g.immovable = true;
-		ground.add(g);
-
-		g = new FlxSprite(FlxG.width - wallwidth, 0).makeGraphic(wallwidth, FlxG.height, wallcolor);
-		g.immovable = true;
-		ground.add(g);
-		
-		createPlayer(FlxG.width / 2, 0);
 	}
 
 	function onPlayerExitCollision(exit : Exit, player : Player)
@@ -421,7 +379,7 @@ class World extends FlxState
 
 	var BallonGenerator : Bool = false;
 	var timer : FlxTimer = null;
-	
+		
 	function debugRoutines()
 	{
 		var mousePos : FlxPoint = FlxG.mouse.getWorldPosition();
@@ -479,6 +437,19 @@ class World extends FlxState
 			FlxG.camera.followLerp = 14;
 		}
 		
+		if (FlxG.keys.justPressed.J)
+		{
+			if (currentScene != null)
+				buildBugCatcherScene();
+			else
+			{
+				cleanBugCatcherScene();
+				currentScene = loadScene(currentSceneName, 0, 0);
+				player.x = FlxG.width / 2;
+				player.y = 0;
+			}	
+		}
+		
 		// B: Balloon Generation
 		if (FlxG.keys.justPressed.B)
 		{
@@ -496,10 +467,71 @@ class World extends FlxState
 	
 	function spawnBalloon(t : FlxTimer) : Void
 	{
-		var x : Float = FlxRandom.floatRanged(currentScene.x, currentScene.x + currentScene.fullWidth);
-		var y : Float = currentScene.y + currentScene.fullHeight - 16;
+		var bounds : FlxRect;
+		if (currentScene == null)
+		{
+			bounds = new FlxRect(32, 16, FlxG.width-56, FlxG.height);
+		}
+		else
+		{
+			bounds = new FlxRect(currentScene.x, currentScene.y, currentScene.fullWidth, currentScene.fullHeight);
+		}
+		
+		var x : Float = FlxRandom.floatRanged(bounds.x, bounds.x + bounds.width);
+		var y : Float = bounds.y + bounds.height - 16;
 		elements.add(new Balloon(x, y, this));
 		
 		timer = new FlxTimer(FlxRandom.floatRanged(1.25, 2.5), spawnBalloon);
+	}
+	
+	function buildHopwayScene()
+	{
+		var wallcolor : Int = 0x0083769C;
+		
+		FlxG.camera.setBounds(-3750, -1000, 10000, 1000 + FlxG.height, true);
+		
+		var g : FlxSprite = new FlxSprite(-4000, FlxG.height - 16).makeGraphic(Std.int(FlxG.camera.bounds.width), 2, wallcolor);
+		g.solid = true;
+		g.immovable = true;
+		
+		ground.add(g);
+		
+		createPlayer(FlxG.camera.bounds.x + FlxG.camera.bounds.width / 2, -16);
+	}
+	
+	function buildBugCatcherScene()
+	{
+		if (currentScene != null)
+		{
+			currentScene.destroy();
+			currentScene = null;
+		}
+	
+		FlxG.camera.setBounds(0, 0, FlxG.width, FlxG.height, true);
+	
+		var wallcolor : Int = 0x0083769C;
+		var wallwidth : Int = 32;
+	
+		var g : FlxSprite = new FlxSprite(0, FlxG.height - 16).makeGraphic(FlxG.width, 2, wallcolor);
+		g.solid = true;
+		g.immovable = true;
+		
+		ground.add(g);
+
+		g = new FlxSprite(0, 0).makeGraphic(wallwidth, FlxG.height, wallcolor);
+		g.immovable = true;
+		ground.add(g);
+
+		g = new FlxSprite(FlxG.width - wallwidth, 0).makeGraphic(wallwidth, FlxG.height, wallcolor);
+		g.immovable = true;
+		ground.add(g);
+		
+		player.x = FlxG.width / 2;
+		player.y = 0;
+	}
+	
+	function cleanBugCatcherScene()
+	{
+		ground.clear();
 	}
 }
