@@ -1,7 +1,7 @@
 package utils.tiled;
 
 import haxe.xml.Fast;
-import flixel.util.FlxPoint;
+import flixel.math.FlxPoint;
 
 /**
  * Last modified 10/3/2013 by Samuel Batista

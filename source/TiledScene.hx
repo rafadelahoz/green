@@ -5,8 +5,8 @@ import haxe.io.Path;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
-import flixel.util.FlxRect;
-import flixel.util.FlxPoint;
+import flixel.math.FlxRect;
+import flixel.math.FlxPoint;
 import flixel.group.FlxGroup;
 import flixel.tile.FlxTilemap;
 import flixel.addons.display.FlxBackdrop;
@@ -21,7 +21,7 @@ class TiledScene extends TiledMap
 {
 	private inline static var spritesPath = "assets/images/";
 	private inline static var tilesetPath = "assets/tilesets/";
-	
+
 	public var world : World;
 
 	public var name : String;
@@ -33,10 +33,10 @@ class TiledScene extends TiledMap
 	public var foregroundTiles : FlxGroup;
 	public var backgroundTiles : FlxGroup;
 	public var collidableTileLayers : Array<FlxTilemap>;
-	
+
 	public var meltingsPerSecond : Float;
 
-	public function new(X : Float, Y : Float, World : World, sceneName : String, ?offsetByWidth : Bool = false, 
+	public function new(X : Float, Y : Float, World : World, sceneName : String, ?offsetByWidth : Bool = false,
 						?floorHeight : Float = 0, ?entryDoor : String = null)
 	{
 		world = World;
@@ -45,13 +45,13 @@ class TiledScene extends TiledMap
 		var tiledLevel : String = "assets/scenes/" + sceneName + ".tmx";
 
 		super(tiledLevel);
-		
+
 		x = Std.int(X);
 		y = Std.int(Y);
-		
+
 		if (offsetByWidth)
 			x -= fullWidth;
-			
+
 		// Match floor height with the specified entry door
 		if (entryDoor != null)
 		{
@@ -68,7 +68,7 @@ class TiledScene extends TiledMap
 		collidableTileLayers = new Array<FlxTilemap>();
 
 		/* Read config info */
-		
+
 		/* Read tile info */
 		for (tileLayer in layers)
 		{
@@ -79,7 +79,7 @@ class TiledScene extends TiledMap
 			// Locate the tileset
 			var tileset : TiledTileSet = null;
 			for (ts in tilesets) {
-				if (ts.name == tilesetName) 
+				if (ts.name == tilesetName)
 				{
 					tileset = ts;
 					break;
@@ -94,18 +94,18 @@ class TiledScene extends TiledMap
 			var processedPath = buildPath(tileset);
 
 			var tilemap : FlxTilemap = new FlxTilemap();
-			tilemap.widthInTiles = width;
-			tilemap.heightInTiles = height;
-			tilemap.loadMap(tileLayer.tileArray, processedPath, tileset.tileWidth, tileset.tileHeight, 0, 1, 1, 1);
+			//tilemap.widthInTiles = width;
+			//tilemap.heightInTiles = height;
+			tilemap.loadMapFromArray(tileLayer.tileArray, width, height, processedPath, tileset.tileWidth, tileset.tileHeight, 0, 1, 1);
 			tilemap.x = x;
 			tilemap.y = y;
 			tilemap.ignoreDrawDebug = true;
-			
+
 			if (tileLayer.properties.contains("overlay"))
 			{
 				overlayTiles.add(tilemap);
 			}
-			else if (tileLayer.properties.contains("solid")) 
+			else if (tileLayer.properties.contains("solid"))
 			{
 				// collidableTileLayers.push(tilemap);
 				// tilemap.ignoreDrawDebug = false;
@@ -138,27 +138,27 @@ class TiledScene extends TiledMap
 			y -= o.height;
 		}
 
-		switch (o.type.toLowerCase()) 
+		switch (o.type.toLowerCase())
 		{
 			case "exit":
 				// trace("Exit at ("+x+","+y+")");
 				var dir : String = o.custom.get("direction");
 				var name : String = o.custom.get("name");
-				
+
 				var exit : Exit = new Exit(x, y, state, this, o.width, o.height);
 				exit.init(name, dir);
 				state.exits.add(exit);
-		
+
 			/*case "oneway":
 				var oneway : FlxObject = new FlxObject(x, y, o.width, o.height);
 				oneway.allowCollisions = FlxObject.UP;
 				oneway.immovable = true;
 				state.oneways.add(oneway);*/
-		
+
 		/** Collectibles **/
-		
+
 		/** Elements **/
-			case "solid": 
+			case "solid":
 				var solid : SceneEntity = new SceneEntity(x, y, state, this);
 				solid.makeGraphic(o.width, o.height, 0x00DDDDDD);
 				solid.immovable = true;
@@ -176,7 +176,7 @@ class TiledScene extends TiledMap
 					var decoration : Decoration = new Decoration(x, y, state, this, tiledImage);
 					state.decoration.add(decoration);
 				}
-				
+
 			case "backdrop":
 				var gid = o.gid;
 				var tiledImage : TiledImage = getImageSource(gid);
@@ -184,24 +184,24 @@ class TiledScene extends TiledMap
 				{
 					trace("Could not locate image source for gid=" + gid + "!");
 				}
-				
+
 				var scrollX : Float = 1;
 				var scrollY : Float = 1;
-				
+
 				if (o.custom.contains("scrollX"))
 					scrollX = Std.parseFloat(o.custom.get("scrollX"));
-					
+
 				if (o.custom.contains("scrollY"))
 					scrollY = Std.parseFloat(o.custom.get("scrollY"));
-				
+
 				x = Std.int(x * scrollX);
 				y = Std.int(y * scrollY);
-				
+
 				var decoration : Decoration = new Decoration(x, y, state, this, tiledImage);
 				decoration.scrollFactor.x = scrollX;
 				decoration.scrollFactor.y = scrollY;
 				state.decoration.add(decoration);
-				
+
 			// TODO: Just a draft!
 			case "background":
 				/*var gid = o.gid;
@@ -210,16 +210,16 @@ class TiledScene extends TiledMap
 				{
 					trace("Could not locate image source for gid=" + gid + "!");
 				}
-				
+
 				var scrollX : Float = 1;
 				var scrollY : Float = 1;
-				
+
 				if (o.custom.contains("scrollX"))
 					scrollX = Std.parseFloat(o.custom.get("scrollX"));
-					
+
 				if (o.custom.contains("scrollY"))
 					scrollY = Std.parseFloat(o.custom.get("scrollY"));
-					
+
 				var background : FlxBackdrop = new FlxBackdrop(tiledImage.imagePath, scrollX, scrollY);
 				state.ground.add(background);
 				*/
@@ -227,7 +227,7 @@ class TiledScene extends TiledMap
 				// !
 		}
 	}
-	
+
 	function getImageSource(gid : Int) : TiledImage
 	{
 		var image : TiledImage = imageCollection.get(gid);
@@ -239,7 +239,7 @@ class TiledScene extends TiledMap
 	{
 		if (collidableTileLayers != null)
 		{
-			for (map in collidableTileLayers) 
+			for (map in collidableTileLayers)
 			{
 				// Remember: Collide the map with the objects, not the other way around!
 				return FlxG.overlap(map, obj, notifyCallback, processCallback != null ? processCallback : FlxObject.separate);
@@ -248,30 +248,30 @@ class TiledScene extends TiledMap
 
 		return false;
 	}
-	
+
 	private function buildPath(tileset : TiledTileSet, ?spritesCase : Bool  = false) : String
 	{
 		var imagePath = new Path(tileset.imageSource);
-		var processedPath = (spritesCase ? spritesPath : tilesetPath) + 
+		var processedPath = (spritesCase ? spritesPath : tilesetPath) +
 			imagePath.file + "." + imagePath.ext;
 
 		return processedPath;
 	}
 
-	public function destroy() 
+	public function destroy()
 	{
 		backgroundTiles.clear();
 		backgroundTiles.destroy();
-		
+
 		foregroundTiles.clear();
 		foregroundTiles.destroy();
-		
+
 		overlayTiles.clear();
 		overlayTiles.destroy();
-		
+
 		for (layer in collidableTileLayers)
 			layer.destroy();
-			
+
 		collidableTileLayers = null;
 
 		world.decoration.forEachOfType(SceneEntity, removeCurrentSceneEntities);
@@ -288,7 +288,7 @@ class TiledScene extends TiledMap
 			entity.destroy();
 		}
 	}
-	
+
 	function locateDoor(name : String) : TiledObject
 	{
 		for (group in objectGroups)
@@ -301,10 +301,10 @@ class TiledScene extends TiledMap
 				}
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	public function getBounds() : FlxRect
 	{
 		return new FlxRect(x, y, fullWidth, fullHeight);

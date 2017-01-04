@@ -16,7 +16,7 @@ class DebugPlayer extends Player
 		overridenControl = true;
 	}
 	
-	override public function update()
+	override public function update(elapsed : Float)
 	{
 		if (FlxG.keys.pressed.UP)
 			velocity.y = -Speed; 
@@ -32,6 +32,6 @@ class DebugPlayer extends Player
 		else
 			velocity.x = 0;
 			
-		super.update();
+		super.update(elapsed);
 	}
 }
