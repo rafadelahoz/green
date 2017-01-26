@@ -154,7 +154,7 @@ class World extends FlxState
 
 	function focusCamera()
 	{
-		FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON, 1500);
+		FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON, 0.02);
 	}
 
 	function onPlayerExitCollision(exit : Exit, player : Player)
@@ -427,13 +427,13 @@ class World extends FlxState
 		// T: Jump 100 pixels
 		if (FlxG.keys.justPressed.T)
 		{
-			FlxG.camera.followLerp = 0;
+			// FlxG.camera.followLerp = 0;
 			player.x += (player.facing == FlxObject.LEFT ? -1 : 1) * 100;
 			FlxG.camera.focusOn(player.getMidpoint());
 		}
 		else
 		{
-			FlxG.camera.followLerp = 14;
+			// FlxG.camera.followLerp = 14;
 		}
 
 		if (FlxG.keys.justPressed.J)
@@ -463,6 +463,17 @@ class World extends FlxState
 			{
 				timer.cancel();
 			}
+		}
+
+		if (FlxG.keys.pressed.I)
+		{
+			FlxG.camera.followLerp += 0.01;
+			trace(FlxG.camera.followLerp);
+		}
+		else if (FlxG.keys.pressed.K)
+		{
+			FlxG.camera.followLerp -= 0.01;
+			trace(FlxG.camera.followLerp);
 		}
 	}
 
