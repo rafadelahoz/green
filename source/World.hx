@@ -1,6 +1,7 @@
 package;
 
 import flixel.FlxG;
+import flixel.FlxBasic;
 import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.FlxState;
@@ -22,6 +23,7 @@ class World extends FlxState
 	public var decoration : FlxGroup;
 	public var elements : FlxGroup;
 	public var exits : FlxGroup;
+	public var backgrounds : FlxGroup;
 
 	public var SceneGraph : Map<String, Node>;
 	public var currentSceneName : String;
@@ -45,6 +47,9 @@ class World extends FlxState
 
 		currentBgColor = 0xFF000000;
 		targetBgColor = 0xFF000000;
+
+		backgrounds = new FlxGroup();
+		add(backgrounds);
 
 		ground = new FlxGroup();
 		add(ground);
@@ -87,6 +92,25 @@ class World extends FlxState
 		GamePad.update();
 
 		// Background color lerp-ing
+		lerpBgColors();
+
+		// Lerp background images
+		lerpBackgrounds();
+
+		if (currentScene != null)
+			currentScene.collideWithLevel(player);
+		FlxG.collide(ground, player);
+		FlxG.collide(elements, player);
+
+		FlxG.overlap(exits, player, onPlayerExitCollision);
+
+		super.update(elapsed);
+
+		debugRoutines();
+	}
+
+	function lerpBgColors()
+	{
 		if (targetBgColor != -1 && targetBgColor != FlxG.camera.bgColor && currentGround != null)
 		{
 			var length : Int = Std.int(currentGround.width);
@@ -107,17 +131,43 @@ class World extends FlxState
 			var color : Int = FlxColor.interpolate(currentBgColor, targetBgColor, factor);
 			FlxG.camera.bgColor = color;
 		}
+	}
 
-		if (currentScene != null)
-			currentScene.collideWithLevel(player);
-		FlxG.collide(ground, player);
-		FlxG.collide(elements, player);
+	function lerpBackgrounds()
+	{
+		if (currentGround != null && nextSceneName != currentSceneName)
+		{
+			var length : Int = Std.int(currentGround.width);
+			var current : Int = 0;
 
-		FlxG.overlap(exits, player, onPlayerExitCollision);
+			if (traversingDirection == FlxObject.RIGHT)
+				current = Std.int(player.x - currentGround.x);
+			else if (traversingDirection == FlxObject.LEFT)
+				current = Std.int(currentGround.x + currentGround.width - player.x);
 
-		super.update(elapsed);
+			if (current < 0)
+				current = 0;
+			if (current > length)
+				current = length;
 
-		debugRoutines();
+			var factor : Float = current/length;
+
+			backgrounds.forEach(function(bg : FlxBasic) {
+				if (Std.is(bg, FlxSprite))
+				{
+					// If it is a target background, increase its alpha
+					if (nextScene.backgrounds.members.indexOf(bg) > -1)
+					{
+						cast(bg, FlxSprite).alpha = factor;
+					}
+					// For source backgrounds, decrease it
+					else
+					{
+						cast(bg, FlxSprite).alpha = 1-factor;
+					}
+				}
+			});
+		}
 	}
 
 	function loadScene(sceneName : String, x : Int, y : Int, ?direction : Int = FlxObject.RIGHT,
@@ -126,13 +176,13 @@ class World extends FlxState
 		var scene = new TiledScene(x, y, this, sceneName, (direction == FlxObject.LEFT), floorHeight, exit);
 
 		if (scene != null)
+		{
 			add(scene.backgroundTiles);
-
-		if (scene != null)
 			scene.loadObjects(this);
-
-		if (scene != null)
+			for (bg in scene.backgrounds)
+				backgrounds.add(bg);
 			add(scene.overlayTiles);
+		}
 
 		trace("Loading scene " + sceneName + " at (" + scene.x + ", " + scene.y + ")");
 
@@ -463,17 +513,6 @@ class World extends FlxState
 			{
 				timer.cancel();
 			}
-		}
-
-		if (FlxG.keys.pressed.I)
-		{
-			FlxG.camera.followLerp += 0.01;
-			trace(FlxG.camera.followLerp);
-		}
-		else if (FlxG.keys.pressed.K)
-		{
-			FlxG.camera.followLerp -= 0.01;
-			trace(FlxG.camera.followLerp);
 		}
 	}
 

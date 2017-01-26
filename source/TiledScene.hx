@@ -34,6 +34,8 @@ class TiledScene extends TiledMap
 	public var backgroundTiles : FlxGroup;
 	public var collidableTileLayers : Array<FlxTilemap>;
 
+	public var backgrounds : FlxGroup;
+
 	public var meltingsPerSecond : Float;
 
 	public function new(X : Float, Y : Float, World : World, sceneName : String, ?offsetByWidth : Bool = false,
@@ -66,6 +68,7 @@ class TiledScene extends TiledMap
 		foregroundTiles = new FlxGroup();
 		backgroundTiles = new FlxGroup();
 		collidableTileLayers = new Array<FlxTilemap>();
+		backgrounds = new FlxGroup();
 
 		/* Read config info */
 
@@ -204,7 +207,7 @@ class TiledScene extends TiledMap
 
 			// TODO: Just a draft!
 			case "background":
-				/*var gid = o.gid;
+				var gid = o.gid;
 				var tiledImage : TiledImage = getImageSource(gid);
 				if (tiledImage == null)
 				{
@@ -220,9 +223,10 @@ class TiledScene extends TiledMap
 				if (o.custom.contains("scrollY"))
 					scrollY = Std.parseFloat(o.custom.get("scrollY"));
 
-				var background : FlxBackdrop = new FlxBackdrop(tiledImage.imagePath, scrollX, scrollY);
-				state.ground.add(background);
-				*/
+				var background : FlxBackdrop = new FlxBackdrop(tiledImage.imagePath, scrollX, scrollY, true, true, 1, 1);
+				background.alpha = 0;
+				backgrounds.add(background);
+
 			default:
 				// !
 		}
@@ -273,6 +277,12 @@ class TiledScene extends TiledMap
 			layer.destroy();
 
 		collidableTileLayers = null;
+
+		for (bg in backgrounds)
+		{
+			world.backgrounds.remove(bg);
+			bg.destroy();
+		}
 
 		world.decoration.forEachOfType(SceneEntity, removeCurrentSceneEntities);
 		world.exits.forEachOfType(SceneEntity, removeCurrentSceneEntities);
