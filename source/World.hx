@@ -591,6 +591,7 @@ class World extends FlxState
 		}
 
 		FlxG.camera.setScrollBounds(0, 0, FlxG.width, FlxG.height);
+		FlxG.worldBounds.set(0, 0, FlxG.width, FlxG.height);
 
 		var wallcolor : Int = 0x0083769C;
 		var wallwidth : Int = 32;
@@ -611,6 +612,8 @@ class World extends FlxState
 
 		player.x = FlxG.width / 2;
 		player.y = 0;
+
+		FlxG.camera.focusOn(player.getMidpoint());
 	}
 
 	function cleanBugCatcherScene()
